@@ -10,6 +10,14 @@
 
 ## 📖 Project Documentation
 
+**[doc/CLAUDE.md](./doc/CLAUDE.md)** - Documentation Navigation Guide
+
+Central index for all project documentation. Start here to find:
+- **PRD** (Product Requirements) - Both condensed (implementation-focused) and original (comprehensive, bilingual)
+- **API Documentation** - Complete backend integration reference
+- **Quick Reference** - Decision trees for which doc to use when
+- **Documentation maintenance** - Guidelines for keeping docs in sync
+
 **[DATAFLOW.md](./DATAFLOW.md)** - Complete SvelteKit Data Flow Reference
 
 This visual guide is essential for understanding the project's architecture:
