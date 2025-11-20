@@ -116,7 +116,7 @@
 				Click a link below to test with different mock users:
 			</p>
 			<div class="space-y-2">
-				{#each mockTokens as { name, token, userId }}
+				{#each mockTokens as { name, token, userId } (userId)}
 					<a
 						href="/auth-test?token={token}"
 						class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"

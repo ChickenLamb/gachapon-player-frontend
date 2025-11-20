@@ -32,7 +32,7 @@
 
 <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
 	<div class="flex items-center justify-around">
-		{#each navItems as item}
+		{#each navItems as item (item.href)}
 			{@const Icon = item.icon}
 			<a
 				href={item.href}

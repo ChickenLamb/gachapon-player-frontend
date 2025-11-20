@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { MapPin, Sparkles, AlertCircle } from 'lucide-svelte';
-	import type { Machine, MerchantEvent } from '$lib/types';
+	import type { Machine } from '$lib/types';
 	import { formatPrice } from '$lib/mocks/services/payment';
 
 	let { data } = $props();
@@ -114,7 +114,7 @@
 
 					<!-- Featured Prizes Preview -->
 					<div class="flex items-center gap-2 mb-4">
-						{#each machine.featuredPrizes.slice(0, 3) as prize}
+						{#each machine.featuredPrizes.slice(0, 3) as prize (prize.id)}
 							<div class="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
 								<img
 									src={prize.imageUrl}

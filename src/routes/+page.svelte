@@ -54,7 +54,7 @@
 			</p>
 
 			<div class="space-y-2">
-				{#each mockTokens as mock}
+				{#each mockTokens as mock (mock.token)}
 					<a
 						href="/dashboard?token={mock.token}"
 						class="block w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold py-3 px-4 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg text-center"

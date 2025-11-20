@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { Package, CheckCircle, Clock, Gift } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
-	import type { InventoryItem, InventoryItemStatus } from '$lib/types';
+	import type { InventoryItemStatus } from '$lib/types';
 
 	let { data } = $props();
 
-	function getStatusColor(status: InventoryItemStatus): string {
+	function getStatusColor(status: InventoryItemStatus) {
 		switch (status) {
 			case 'UNCLAIMED':
 				return 'bg-yellow-50 border-yellow-200 text-yellow-800';

@@ -28,9 +28,9 @@ export function sendToUnity(message: UnityMessage): void {
 	if (window.webkit?.messageHandlers?.unityControl) {
 		// iOS WebView
 		window.webkit.messageHandlers.unityControl.postMessage(JSON.stringify(message));
-	} else if ((window as any).unityControl) {
+	} else if (window.unityControl) {
 		// Android WebView
-		(window as any).unityControl.postMessage(JSON.stringify(message));
+		window.unityControl.postMessage(JSON.stringify(message));
 	} else {
 		console.error('Unity message handlers not found');
 	}
@@ -88,6 +88,9 @@ declare global {
 					postMessage: (message: string) => void;
 				};
 			};
+		};
+		unityControl?: {
+			postMessage: (message: string) => void;
 		};
 	}
 }

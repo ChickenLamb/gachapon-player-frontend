@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { QrCode, Package, CheckCircle, Clock, Gift, Calendar } from 'lucide-svelte';
+	import { QrCode, Package, CheckCircle, Clock, Gift } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import type { InventoryItemStatus } from '$lib/types';
 

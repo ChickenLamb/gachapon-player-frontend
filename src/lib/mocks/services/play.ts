@@ -6,9 +6,10 @@ import { getAllPrizes } from '$lib/mocks/data/machines';
  * Simulate prize drawing based on rarity
  * Weighted random selection
  */
-export async function drawPrize(machineId: string): Promise<Prize> {
+export async function drawPrize(_machineId: string): Promise<Prize> {
 	// Simulate machine dispensing delay
 	await new Promise((resolve) => setTimeout(resolve, 2000));
+	// Note: machineId would be used in real implementation to get machine-specific prizes
 
 	const allPrizes = getAllPrizes();
 

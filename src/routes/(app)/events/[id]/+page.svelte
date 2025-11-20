@@ -135,7 +135,7 @@
 					Requirements
 				</h2>
 				<ul class="space-y-2">
-					{#each data.event.requirements as requirement}
+					{#each data.event.requirements as requirement (requirement)}
 						<li class="flex items-start gap-2 text-gray-600">
 							<CheckCircle class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
 							<span>{requirement}</span>
@@ -153,7 +153,7 @@
 					Rewards
 				</h2>
 				<ul class="space-y-2">
-					{#each data.event.rewards as reward}
+					{#each data.event.rewards as reward (reward)}
 						<li class="flex items-start gap-2 text-gray-600">
 							<Trophy class="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
 							<span>{reward}</span>

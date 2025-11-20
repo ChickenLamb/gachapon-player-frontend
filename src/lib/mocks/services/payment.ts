@@ -74,12 +74,13 @@ export async function createPayment(
 /**
  * Mock payment status check
  */
-export async function getPaymentStatus(paymentId: string): Promise<PaymentStatus> {
+export async function getPaymentStatus(_paymentId: string): Promise<PaymentStatus> {
 	// Simulate network delay
 	await new Promise((resolve) => setTimeout(resolve, 300));
 
 	// Mock: payments complete after 2 seconds
 	// In real app, poll backend for status
+	// Note: paymentId would be used in real implementation
 	return 'SUCCESS' as PaymentStatus;
 }
 

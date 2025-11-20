@@ -31,7 +31,7 @@
 				data.machine.id,
 				data.machine.pricePerPlay
 			);
-		} catch (err) {
+		} catch {
 			error = 'Failed to load payment details';
 		} finally {
 			isLoadingPreview = false;
@@ -61,7 +61,7 @@
 
 			// 3. Navigate to QR display
 			goto(`/machines/${data.machine.id}/qr/${qrCode.id}`);
-		} catch (err) {
+		} catch {
 			error = 'Payment failed. Please try again.';
 			isProcessing = false;
 		}
