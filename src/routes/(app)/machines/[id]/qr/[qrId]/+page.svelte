@@ -99,13 +99,18 @@
 			</div>
 
 			<!-- QR Code Image -->
-			<div class="mb-6 rounded-xl border-4 border-purple-600 bg-white p-4" data-testid="qr-code">
+			<div class="mb-4 rounded-xl border-4 border-purple-600 bg-white p-4" data-testid="qr-code">
 				<img
 					src={qrImageUrl}
 					alt="QR Code"
 					class="h-auto w-full"
 					class:opacity-50={remainingSeconds <= 0}
 				/>
+			</div>
+
+			<!-- QR Code ID -->
+			<div class="mb-6 text-center">
+				<p class="font-mono text-sm text-gray-600">{data.qrCode.code}</p>
 			</div>
 
 			<!-- Machine Info -->
@@ -122,6 +127,75 @@
 					<p class="truncate text-xs text-gray-600">{data.machine.location}</p>
 				</div>
 			</div>
+		</div>
+
+		<!-- HOW TO SCAN Section -->
+		<div class="rounded-xl border border-gray-200 bg-gray-50 p-6">
+			<h3 class="mb-4 text-center text-sm font-semibold tracking-wide text-gray-700 uppercase">
+				How to Scan?
+			</h3>
+
+			<!-- Visual Instruction -->
+			<div class="mb-4 flex justify-center">
+				<div class="relative">
+					<!-- Illustration placeholder - simplified representation -->
+					<div
+						class="relative h-48 w-64 overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-orange-100 to-amber-100 p-4"
+					>
+						<!-- Machine representation -->
+						<div
+							class="absolute right-4 bottom-4 h-32 w-24 rounded-lg bg-gradient-to-b from-orange-400 to-orange-500 shadow-lg"
+						>
+							<!-- Scan area indicator -->
+							<div
+								class="absolute top-8 left-1/2 h-8 w-16 -translate-x-1/2 rounded bg-red-500 opacity-70"
+							>
+								<span class="flex h-full items-center justify-center text-xs font-bold text-white">
+									SCAN
+								</span>
+							</div>
+						</div>
+
+						<!-- Phone/Hand representation -->
+						<div class="absolute bottom-8 left-4 h-28 w-20 rounded-lg bg-gray-800 shadow-xl">
+							<!-- Screen with QR -->
+							<div class="absolute inset-2 rounded bg-white">
+								<div class="flex h-full items-center justify-center">
+									<div class="h-12 w-12 bg-black opacity-20">
+										<!-- QR code representation -->
+										<svg viewBox="0 0 100 100" class="h-full w-full">
+											<rect x="0" y="0" width="100" height="100" fill="black" opacity="0.2" />
+										</svg>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Arrow indicator -->
+						<div class="absolute bottom-20 left-24">
+							<svg
+								class="h-8 w-8 text-purple-600"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M14 5l7 7m0 0l-7 7m7-7H3"
+								/>
+							</svg>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Instruction Text -->
+			<p class="text-center text-sm leading-relaxed text-gray-700">
+				Hold your QR code near the <span class="font-semibold">Gachapon machine's scan area</span> to
+				connect and gain extra reward.
+			</p>
 		</div>
 
 		<!-- Instructions -->
