@@ -5,8 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1762886656012,
-      "tag": "0000_auth_better_auth_initial_setup",
+      "when": 1763639484277,
+      "tag": "0000_gachapon_init_session_table",
       "breakpoints": true
     }
   ]

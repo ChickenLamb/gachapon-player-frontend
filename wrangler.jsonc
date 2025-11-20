@@ -20,8 +20,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "etee",
-			"database_id": "6890db87-5cb4-4c96-8cc7-c8fde87ac756",
+			"database_name": "gachapon-player-frontend-db",
+			"database_id": "ffce75c6-f268-4a30-b3e6-686452d75ecf",
 			"migrations_dir": "drizzle/migrations"
 		}
 	]

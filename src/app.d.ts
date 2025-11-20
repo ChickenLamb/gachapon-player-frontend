@@ -12,8 +12,9 @@ declare global {
 
 		interface Locals {
 			db: import('$lib/server/db').DB;
-			user: import('$lib/server/auth').User | null;
-			session: import('$lib/server/auth').SessionInfo | null;
+			// Gachapon-specific auth (JWT from Unity WebView)
+			user: import('$lib/types').GachaponUser | null;
+			session: import('$lib/types').GachaponSession | null;
 		}
 	}
 }

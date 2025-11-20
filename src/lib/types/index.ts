@@ -136,38 +136,14 @@ export type KeysOfType<T, V> = {
 }[keyof T];
 
 // ============================================================================
-// EXAMPLE DOMAIN TYPES (DELETE OR MODIFY AS NEEDED)
+// GACHAPON DOMAIN TYPES
 // ============================================================================
 
 /**
- * Example: Blog post type
- * Replace with your actual domain models
+ * Re-export all Gachapon-specific types
+ * See gachapon.ts for detailed type definitions
  */
-export interface Post {
-	id: string;
-	title: string;
-	content: string;
-	authorId: string;
-	author?: User;
-	published: boolean;
-	createdAt: Date;
-	updatedAt: Date;
-	tags?: string[];
-}
-
-/**
- * Example: Blog post creation input
- * Omit fields that are auto-generated
- */
-export type CreatePostInput = Omit<Post, 'id' | 'createdAt' | 'updatedAt' | 'author'>;
-
-/**
- * Example: Blog post update input
- * All fields optional except id
- */
-export type UpdatePostInput = DeepPartial<Omit<Post, 'id' | 'author'>> & {
-	id: string;
-};
+export * from './gachapon';
 
 // ============================================================================
 // TYPE GUARDS

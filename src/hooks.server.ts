@@ -2,9 +2,11 @@ import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 import { createDB } from '$lib/server/db';
-import { createAuth } from '$lib/server/auth';
-import { svelteKitHandler } from 'better-auth/svelte-kit';
-import { building } from '$app/environment';
+import {
+	USE_MOCK_AUTH,
+	extractTokenFromUrl,
+	createMockSession
+} from '$lib/server/auth-mock';
 
 const handleDatabase: Handle = async ({ event, resolve }) => {
 	event.locals.db = createDB(event.platform!.env.DB);
@@ -21,25 +23,36 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 	});
 
 const handleAuth: Handle = async ({ event, resolve }) => {
-	// Create Better Auth instance with DB from event.locals
-	const auth = createAuth(event.locals.db);
+	// Extract JWT token from Unity WebView URL (?token=xxx)
+	const url = new URL(event.request.url);
+	const token = extractTokenFromUrl(url);
 
-	// Fetch current session from Better Auth
-	const session = await auth.api.getSession({
-		headers: event.request.headers
-	});
-
-	// Populate event.locals with session data
-	if (session) {
-		event.locals.session = session.session;
-		event.locals.user = session.user;
+	if (token) {
+		if (USE_MOCK_AUTH) {
+			// Development: Use mock token validator
+			const session = createMockSession(token);
+			if (session) {
+				event.locals.session = session;
+				event.locals.user = session.user;
+			} else {
+				event.locals.session = null;
+				event.locals.user = null;
+			}
+		} else {
+			// Production: Use real JWT validation (TODO: implement when backend ready)
+			// const session = await validateRealJWT(token, event.locals.db);
+			// event.locals.session = session;
+			// event.locals.user = session?.user || null;
+			event.locals.session = null;
+			event.locals.user = null;
+		}
 	} else {
+		// No token provided
 		event.locals.session = null;
 		event.locals.user = null;
 	}
 
-	// Handle Better Auth routes (/api/auth/*)
-	return svelteKitHandler({ event, resolve, auth, building });
+	return resolve(event);
 };
 
 export const handle: Handle = sequence(handleDatabase, handleParaglide, handleAuth);

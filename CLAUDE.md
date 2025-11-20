@@ -187,10 +187,10 @@ cat auth-schema.ts
 pnpm run db:generate
 
 # 5. Test locally
-npx wrangler d1 migrations apply etee --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 
 # 6. Deploy to production
-npx wrangler d1 migrations apply etee --remote
+npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 ```
 
 **Important Notes**:
@@ -256,7 +256,7 @@ cat drizzle/migrations/0001_xxx.sql
 #### 4. Test Locally First
 
 ```bash
-npx wrangler d1 migrations apply etee --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 pnpm run dev
 # Test your changes thoroughly
 ```
@@ -264,7 +264,7 @@ pnpm run dev
 #### 5. Deploy to Production
 
 ```bash
-npx wrangler d1 migrations apply etee --remote
+npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 pnpm run deploy
 ```
 
@@ -295,14 +295,14 @@ pnpm run db:push  # Requires .env, applies directly
 
 ```bash
 # Create empty migration
-npx wrangler d1 migrations create etee "description"
+npx wrangler d1 migrations create gachapon-player-frontend-db "description"
 
 # Write SQL manually
 vim drizzle/migrations/0001_xxx.sql
 
 # Apply
-npx wrangler d1 migrations apply etee --local
-npx wrangler d1 migrations apply etee --remote
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 ```
 
 ---
@@ -322,10 +322,10 @@ pnpm run auth:generate          # Generate Better Auth schema to auth-schema.ts
 pnpm run db:generate            # NO .env needed
 
 # Apply locally
-npx wrangler d1 migrations apply etee --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 
 # Apply to production
-npx wrangler d1 migrations apply etee --remote
+npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 
 # Deploy app
 pnpm run deploy
@@ -338,14 +338,14 @@ pnpm run deploy
 npx wrangler d1 list
 
 # Get info
-npx wrangler d1 info etee
+npx wrangler d1 info gachapon-player-frontend-db
 
 # Execute SQL
-npx wrangler d1 execute etee --command "SELECT * FROM user" --local
-npx wrangler d1 execute etee --command "SELECT * FROM user" --remote
+npx wrangler d1 execute gachapon-player-frontend-db --command "SELECT * FROM user" --local
+npx wrangler d1 execute gachapon-player-frontend-db --command "SELECT * FROM user" --remote
 
 # Export backup
-npx wrangler d1 export etee --output backup.sql --remote
+npx wrangler d1 export gachapon-player-frontend-db --output backup.sql --remote
 ```
 
 ### Drizzle Studio (Local Database Inspection)
@@ -366,7 +366,7 @@ pnpm run db:studio              # Opens GUI at http://localhost:4983
 **How it works**:
 
 - 🤖 **Automatic Database Detection**: `scripts/db-studio-autodetect.mjs` finds the database file automatically
-- ✅ **Validation**: Tests connection with `wrangler d1 execute etee --local --command "SELECT 1"`
+- ✅ **Validation**: Tests connection with `wrangler d1 execute gachapon-player-frontend-db --local --command "SELECT 1"`
 - 📝 **Config Update**: Auto-updates `drizzle.config.local.ts` with correct path
 - 🚀 **Launch**: Starts Drizzle Studio pointing to detected database
 - NO manual path configuration needed!
@@ -426,12 +426,12 @@ cp .env.example .env
 LOCAL (.wrangler/state/):
   - For development testing
   - Created by: pnpm run dev
-  - Apply: wrangler d1 migrations apply etee --local
+  - Apply: wrangler d1 migrations apply gachapon-player-frontend-db --local
 
 REMOTE (Cloudflare):
   - Production database
-  - Created by: wrangler d1 create etee
-  - Apply: wrangler d1 migrations apply etee --remote
+  - Created by: wrangler d1 create gachapon-player-frontend-db
+  - Apply: wrangler d1 migrations apply gachapon-player-frontend-db --remote
 ```
 
 ---
@@ -640,7 +640,7 @@ sqlite3 .wrangler/state/.../miniflare-*.sqlite
 > ALTER TABLE user ADD COLUMN hacked TEXT;
 
 # Then deploy
-npx wrangler d1 migrations apply etee --remote
+npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 
 # What happens?
 # 1. Wrangler reads: drizzle/migrations/*.sql files
@@ -667,7 +667,7 @@ npx wrangler d1 migrations apply etee --remote
 # ✅ CORRECT: Create migration file
 1. Edit schema.ts
 2. pnpm run db:generate              # Creates migration file
-3. npx wrangler d1 migrations apply etee --remote
+3. npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 
 # ❌ WRONG: Manual database edits
 sqlite3 .wrangler/state/.../miniflare-*.sqlite
@@ -679,7 +679,7 @@ sqlite3 .wrangler/state/.../miniflare-*.sqlite
 ```bash
 # Reset local database (easiest)
 rm -rf .wrangler/state/v3/d1/
-npx wrangler d1 migrations apply etee --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 # Recreates local DB from migration files
 ```
 
@@ -727,7 +727,7 @@ const db = event.locals.db;
 2. **Test locally first** before production
 
    ```bash
-   npx wrangler d1 migrations apply etee --local
+   npx wrangler d1 migrations apply gachapon-player-frontend-db --local
    pnpm run dev  # Test thoroughly
    ```
 
@@ -740,7 +740,7 @@ const db = event.locals.db;
 
 4. **Apply to production** after testing
    ```bash
-   npx wrangler d1 migrations apply etee --remote
+   npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
    pnpm run deploy
    ```
 
@@ -765,9 +765,9 @@ export const posts = sqliteTable('posts', {
 
 ```bash
 pnpm run db:generate
-npx wrangler d1 migrations apply etee --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 # Test, then:
-npx wrangler d1 migrations apply etee --remote
+npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 ```
 
 ### Adding Auth to Route
@@ -817,17 +817,17 @@ Need to reproduce with real production data? Here's the flow:
 
 ```bash
 # 1. Export production database
-npx wrangler d1 export etee --remote --output=./database.sql
+npx wrangler d1 export gachapon-player-frontend-db --remote --output=./database.sql
 
 # 2. Reset local database
 rm -rf .wrangler/state/v3/d1/
 
 # 3. Re-apply migrations (recreate schema)
-npx wrangler d1 migrations apply etee --local
+npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 
 # 4. Import only data (skip CREATE TABLE statements)
 grep "^INSERT INTO" database.sql > data-only.sql
-npx wrangler d1 execute etee --local --file=./data-only.sql
+npx wrangler d1 execute gachapon-player-frontend-db --local --file=./data-only.sql
 
 # 5. Debug with production data
 pnpm run dev
@@ -846,7 +846,7 @@ rm database.sql data-only.sql
 
 ```bash
 rm -rf .wrangler/state/v3/d1/
-npx wrangler d1 execute etee --local --file=./database.sql
+npx wrangler d1 execute gachapon-player-frontend-db --local --file=./database.sql
 pnpm run dev
 ```
 
@@ -867,7 +867,7 @@ pnpm run dev
 ### "Migration already applied"
 
 **Cause**: Migration file already executed
-**Solution**: Check migration history with `npx wrangler d1 migrations list etee`
+**Solution**: Check migration history with `npx wrangler d1 migrations list gachapon-player-frontend-db`
 
 ### "Local D1 database not found" error with db:studio
 
@@ -885,7 +885,7 @@ pnpm run dev
 **Solution**:
 
 1. Check `wrangler.jsonc` has correct `d1_databases` configuration
-2. Ensure `database_name` is "etee"
+2. Ensure `database_name` is "gachapon-player-frontend-db"
 3. Verify `binding` is "DB"
 
 ---
