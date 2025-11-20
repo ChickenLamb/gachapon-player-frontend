@@ -15,7 +15,7 @@
 		gap = '16px',
 		showScrollbar = false,
 		children
-	}: Props = $props();
+	}: Props<unknown> = $props();
 </script>
 
 <div
