@@ -142,7 +142,9 @@
 	</div>
 
 	<!-- Fixed Bottom CTA -->
-	<div class="safe-bottom fixed right-0 bottom-0 left-0 border-t border-gray-200 bg-white p-4">
+	<div
+		class="safe-bottom fixed right-0 bottom-0 left-0 z-[60] border-t border-gray-200 bg-white p-4"
+	>
 		<button
 			type="button"
 			data-testid="confirm-payment-button"

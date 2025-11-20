@@ -31,7 +31,7 @@
 </script>
 
 <nav
-	class="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white"
+	class="fixed right-0 bottom-0 left-0 z-40 border-t border-gray-200 bg-white"
 	data-testid="bottom-nav"
 >
 	<div class="flex items-center justify-around">
