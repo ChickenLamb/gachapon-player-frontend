@@ -17,6 +17,28 @@ export const mockUsers: Record<string, GachaponUser> = {
 		roles: ['player'],
 		unityUserId: 'unity_player_002',
 		organizationId: 'org_demo_002'
+	},
+	// Test users for E2E tests
+	user_mock_alice: {
+		id: 'user_mock_alice',
+		username: 'Alice Chen',
+		roles: ['player'],
+		unityUserId: 'unity_alice',
+		organizationId: 'org_test_001'
+	},
+	user_mock_bob: {
+		id: 'user_mock_bob',
+		username: 'Bob Wang',
+		roles: ['player'],
+		unityUserId: 'unity_bob',
+		organizationId: 'org_test_002'
+	},
+	user_mock_charlie: {
+		id: 'user_mock_charlie',
+		username: 'Charlie Liu',
+		roles: ['player'],
+		unityUserId: 'unity_charlie',
+		organizationId: 'org_test_003'
 	}
 };
 
@@ -24,5 +46,9 @@ export const mockUsers: Record<string, GachaponUser> = {
 export const mockTokens: Record<string, string> = {
 	// Format: token → userId
 	dev_player_token: 'player_456',
-	dev_test_token: 'player_789'
+	dev_test_token: 'player_789',
+	// E2E test tokens
+	mock_token_alice: 'user_mock_alice',
+	mock_token_bob: 'user_mock_bob',
+	mock_token_charlie: 'user_mock_charlie'
 };

@@ -3,21 +3,25 @@
 ## 1. Executive Summary
 
 ### 1.1 Product Overview
+
 A web-based Gachapon player module embedded in the OMMiii Unity App via WebView. This module enables players to interact with physical Gachapon machines through QR codes, manage won prizes, and complete payments. The module is part of a larger ecosystem where authentication, admin, and merchant features are handled by separate teams.
 
 ### 1.2 Project Scope & Team Structure
+
 - **You**: Player-facing frontend only (SvelteKit + Cloudflare Workers)
 - **Friend A**: Authentication service & JWT token provider
 - **Friend B**: Admin/Merchant backend + frontend, main API backend
 - **Unity Team**: Hub/Portal app with WebView container
 
 ### 1.3 Key Constraints
+
 - **Unity WebView Environment**: Module runs inside Unity app, not standalone
 - **Flexible Authentication**: Auth service still in development, support mock tokens
 - **No Over-engineering**: Simple, adaptable architecture
 - **API Consumer Only**: Frontend consumes APIs, doesn't manage business logic
 
 ### 1.4 Success Metrics
+
 - Complete play flow in < 2 minutes
 - QR code generation success rate > 95%
 - Payment processing success rate > 95%
@@ -87,6 +91,7 @@ graph TB
 ```
 
 ### 2.2 Tech Stack
+
 - **Framework**: SvelteKit 5 (SSR for fast initial load)
 - **Runtime**: Cloudflare Workers (edge deployment)
 - **Database**: Cloudflare D1 (session storage)
@@ -107,17 +112,17 @@ sequenceDiagram
     participant Frontend as Your Frontend
     participant Auth as Auth Service<br/>(Friend A)
     participant Backend as Backend API<br/>(Friend B)
-    
+
     Unity->>Unity: User taps Gachapon tile
     Unity->>Auth: Request JWT token
     Auth-->>Unity: Return JWT token
     Unity->>WebView: Open WebView with URL
     Note over WebView: URL: /dashboard?token=JWT&section=prize&org_id=acme
-    
+
     WebView->>Frontend: Load page with token
     Frontend->>Frontend: Extract token from URL
     Frontend->>Auth: Validate token<br/>POST /api/v1/Auth/external-login/ommiii
-    
+
     alt Token Valid
         Auth-->>Frontend: User data (id, username, roles)
         Frontend->>Frontend: Store in session/cookie
@@ -130,6 +135,7 @@ sequenceDiagram
 ```
 
 ### 3.2 Token Requirements
+
 - **Format**: JWT Bearer Token
 - **Source**: Unity WebView URL parameter
 - **Validation**: Friend A's endpoint or mock for dev
@@ -203,6 +209,7 @@ graph TD
 ```
 
 ### 4.2 Journey A: First-Time Player
+
 1. **Entry**: Unity Hub → Gachapon tile (not connected) → Connect
 2. **Landing**: Auto-authenticate with token from URL
 3. **Discovery**: Browse available machines with locations
@@ -213,6 +220,7 @@ graph TD
 8. **Next Steps**: Play again or view inventory
 
 ### 4.3 Journey B: Returning Player Quick Play
+
 1. **Entry**: Unity Hub → Gachapon tile (connected)
 2. **Dashboard**: Shows last played machine
 3. **Quick Play**: One-tap "Play Again"
@@ -221,6 +229,7 @@ graph TD
 6. **Result**: Quick reveal with options
 
 ### 4.4 Journey C: Prize Management
+
 1. **Inventory View**: Grid of won prizes
 2. **Categories**: Physical prizes, E-vouchers, Free plays
 3. **Physical Prize**: Generate collection QR code
@@ -233,69 +242,70 @@ graph TD
 
 ### 5.1 Authentication & Session Management
 
-| Requirement | Details |
-|------------|---------|
-| **Token Source** | URL parameter from Unity WebView |
-| **Validation** | POST to Friend A's endpoint or mock |
-| **Session Storage** | Cloudflare D1 + secure cookie |
-| **Expiry Handling** | Redirect to Unity on 401 |
-| **Mock Support** | Development mode with test token |
+| Requirement         | Details                             |
+| ------------------- | ----------------------------------- |
+| **Token Source**    | URL parameter from Unity WebView    |
+| **Validation**      | POST to Friend A's endpoint or mock |
+| **Session Storage** | Cloudflare D1 + secure cookie       |
+| **Expiry Handling** | Redirect to Unity on 401            |
+| **Mock Support**    | Development mode with test token    |
 
 ### 5.2 Machine Discovery
 
-| Requirement | Details |
-|------------|---------|
-| **List Machines** | GET /api/v1/machines with filters |
-| **Machine Details** | GET /api/v1/machines/{id} |
-| **Status Display** | AVAILABLE, IN_USE, MAINTENANCE |
-| **Auto-refresh** | Every 30 seconds on dashboard |
-| **Featured Prizes** | Display top 3 prizes per machine |
+| Requirement         | Details                           |
+| ------------------- | --------------------------------- |
+| **List Machines**   | GET /api/v1/machines with filters |
+| **Machine Details** | GET /api/v1/machines/{id}         |
+| **Status Display**  | AVAILABLE, IN_USE, MAINTENANCE    |
+| **Auto-refresh**    | Every 30 seconds on dashboard     |
+| **Featured Prizes** | Display top 3 prizes per machine  |
 
 ### 5.3 Payment Processing
 
-| Requirement | Details |
-|------------|---------|
-| **Preview** | Show price with tax and discounts |
-| **Amount** | RM 5.00 per play (configurable) |
-| **Gateway** | Airwallex integration |
-| **Methods** | Card, e-wallet, vouchers |
+| Requirement | Details                            |
+| ----------- | ---------------------------------- |
+| **Preview** | Show price with tax and discounts  |
+| **Amount**  | RM 5.00 per play (configurable)    |
+| **Gateway** | Airwallex integration              |
+| **Methods** | Card, e-wallet, vouchers           |
 | **Polling** | Check status every 2s, timeout 30s |
 
 ### 5.4 QR Code System
 
-| Requirement | Details |
-|------------|---------|
-| **Generation** | POST /api/v1/user-activity/qr-codes/generate |
-| **TTL** | 2 minutes with visual countdown |
-| **Format** | AES encrypted JSON, Base64 encoded |
-| **Display** | Minimum 250x250px for scanning |
-| **Regeneration** | Allow manual refresh before expiry |
+| Requirement      | Details                                      |
+| ---------------- | -------------------------------------------- |
+| **Generation**   | POST /api/v1/user-activity/qr-codes/generate |
+| **TTL**          | 2 minutes with visual countdown              |
+| **Format**       | AES encrypted JSON, Base64 encoded           |
+| **Display**      | Minimum 250x250px for scanning               |
+| **Regeneration** | Allow manual refresh before expiry           |
 
 ### 5.5 Event/Promotion System
 
-| Requirement | Details |
-|------------|---------|
-| **Browse Events** | GET /api/v1/merchant-events |
-| **Auto-join** | Backend handles AUTO mode events |
-| **Manual Join** | POST /api/v1/merchant-events/join |
-| **Progress Tracking** | Real-time progress percentage |
-| **Redemption** | POST /api/v1/merchant-events/{id}/redeem/{userId} |
+| Requirement           | Details                                           |
+| --------------------- | ------------------------------------------------- |
+| **Browse Events**     | GET /api/v1/merchant-events                       |
+| **Auto-join**         | Backend handles AUTO mode events                  |
+| **Manual Join**       | POST /api/v1/merchant-events/join                 |
+| **Progress Tracking** | Real-time progress percentage                     |
+| **Redemption**        | POST /api/v1/merchant-events/{id}/redeem/{userId} |
 
 ### 5.6 Prize Inventory
 
-| Requirement | Details |
-|------------|---------|
-| **View Prizes** | Grid/list toggle view |
-| **Categories** | Physical, Digital, Vouchers |
-| **Claiming** | Generate collection QR for physical |
-| **Integration** | Link to EVOUCHER for digital |
-| **Status** | Claimed/Unclaimed indicators |
+| Requirement     | Details                             |
+| --------------- | ----------------------------------- |
+| **View Prizes** | Grid/list toggle view               |
+| **Categories**  | Physical, Digital, Vouchers         |
+| **Claiming**    | Generate collection QR for physical |
+| **Integration** | Link to EVOUCHER for digital        |
+| **Status**      | Claimed/Unclaimed indicators        |
 
 ---
 
 ## 6. Non-Functional Requirements
 
 ### 6.1 Performance
+
 - Page load < 3 seconds on 4G
 - QR generation < 2 seconds
 - API response < 500ms (p95)
@@ -303,6 +313,7 @@ graph TD
 - Offline detection and graceful degradation
 
 ### 6.2 Security
+
 - JWT validation on all protected routes
 - HTTPS only in production
 - QR payload signing to prevent forgery
@@ -310,6 +321,7 @@ graph TD
 - No sensitive data in localStorage
 
 ### 6.3 Compatibility
+
 - **iOS WebView**: Safari WebKit, iOS 14+
 - **Android WebView**: Chrome WebView, Android 8+
 - **Screen Sizes**: 360px - 428px width (mobile)
@@ -317,6 +329,7 @@ graph TD
 - **Unity Integration**: No browser chrome, custom back handling
 
 ### 6.4 Accessibility
+
 - Touch targets minimum 44x44px (iOS standard)
 - Font size minimum 16px
 - High contrast mode support
@@ -328,6 +341,7 @@ graph TD
 ## 7. Page Structure & Components
 
 ### 7.1 URL Structure
+
 ```
 /                           → Redirect to /dashboard
 /dashboard                  → Main landing (machine list)
@@ -340,9 +354,10 @@ graph TD
 ```
 
 ### 7.2 Core Components
+
 ```
 NavigationHeader.svelte    → Unity-aware navigation
-MachineCard.svelte        → Machine selection card  
+MachineCard.svelte        → Machine selection card
 QRCodeDisplay.svelte      → QR with countdown
 PaymentFlow.svelte        → Payment UI wrapper
 PrizeReveal.svelte        → Animated prize display
@@ -351,6 +366,7 @@ InventoryGrid.svelte      → Prize collection view
 ```
 
 ### 7.3 Unity WebView Considerations
+
 - **Back Button**: Disabled on root page (/)
 - **Deep Links**: Support ?token=X&section=Y parameters
 - **State Preservation**: Handle WebView hide/show
@@ -409,6 +425,7 @@ graph LR
 ### 8.2 Core Endpoints (Player Only)
 
 #### No Auth Required
+
 ```
 GET /api/v1/machines                  → List machines
 GET /api/v1/machines/{id}             → Machine details
@@ -416,6 +433,7 @@ GET /api/v1/products/featured         → Featured prizes
 ```
 
 #### Auth Required
+
 ```
 POST /api/v1/user-activity/qr-codes/generate   → Generate QR
 POST /api/v1/payments/preview                  → Preview payment
@@ -427,6 +445,7 @@ POST /api/v1/merchant-events/{id}/redeem/{userId} → Redeem reward
 ```
 
 ### 8.3 Development Mode
+
 ```typescript
 // .env.development
 VITE_API_BASE_URL=http://localhost:8096/api/v1
@@ -487,6 +506,7 @@ stateDiagram-v2
 ```
 
 ### 9.2 Store Structure
+
 ```typescript
 // User store
 userStore: {
@@ -496,7 +516,7 @@ userStore: {
   roles: string[];
 }
 
-// Machine store  
+// Machine store
 machineStore: {
   selected: Machine | null;
   list: Machine[];
@@ -523,6 +543,7 @@ qrStore: {
 ## 10. UI/UX Guidelines
 
 ### 10.1 Design System
+
 - **Primary Color**: Purple (#8B5CF6)
 - **Secondary Color**: Pink (#EC4899)
 - **Success**: Green (#10B981)
@@ -530,6 +551,7 @@ qrStore: {
 - **Background**: Gradient (purple-50 to pink-50)
 
 ### 10.2 Mobile-First Principles
+
 - **Width Range**: 360px - 428px
 - **Touch Targets**: Minimum 44x44px
 - **Font Sizes**: Body 16px, Headers 20-24px
@@ -537,6 +559,7 @@ qrStore: {
 - **Buttons**: Full-width on mobile
 
 ### 10.3 Loading & Feedback
+
 - **Skeleton loaders** for content
 - **Inline spinners** for actions
 - **Toast notifications** for success/error
@@ -544,6 +567,7 @@ qrStore: {
 - **Countdown timers** with visual indicators
 
 ### 10.4 Animations
+
 - **Page transitions**: Slide left/right
 - **Prize reveal**: Scale + fade animation
 - **QR countdown**: Pulsing border
@@ -555,6 +579,7 @@ qrStore: {
 ## 11. Implementation Timeline
 
 ### Week 1-2: Foundation
+
 - [ ] Setup SvelteKit with Cloudflare Workers template
 - [ ] Implement flexible auth hook (mock + real)
 - [ ] Create navigation structure
@@ -563,6 +588,7 @@ qrStore: {
 - [ ] API client architecture
 
 ### Week 3: Core Features
+
 - [ ] Machine listing and selection
 - [ ] Machine detail page
 - [ ] QR generation (mock first)
@@ -570,6 +596,7 @@ qrStore: {
 - [ ] Basic error handling
 
 ### Week 4: Payment Flow
+
 - [ ] Payment preview UI
 - [ ] Airwallex integration
 - [ ] Payment status polling
@@ -577,6 +604,7 @@ qrStore: {
 - [ ] Voucher system
 
 ### Week 5: Events & Inventory
+
 - [ ] Events listing page
 - [ ] Event participation tracking
 - [ ] Prize inventory grid
@@ -584,6 +612,7 @@ qrStore: {
 - [ ] EVOUCHER integration prep
 
 ### Week 6: Polish & Testing
+
 - [ ] Unity WebView testing (iOS/Android)
 - [ ] Performance optimization
 - [ ] Error boundary implementation
@@ -595,17 +624,19 @@ qrStore: {
 ## 12. Testing Strategy
 
 ### 12.1 Development Testing
+
 ```typescript
 // Mock token for local development
 const MOCK_TOKEN = 'eyJhbGc...'; // Valid JWT structure
 const MOCK_USER = {
-  id: 'user-123',
-  username: 'testplayer',
-  roles: ['user']
+	id: 'user-123',
+	username: 'testplayer',
+	roles: ['user']
 };
 ```
 
 ### 12.2 Test Scenarios
+
 1. **Auth Flow**: Token validation, expiry, refresh
 2. **Machine Selection**: List, filter, select
 3. **Payment**: Preview, process, poll, timeout
@@ -614,6 +645,7 @@ const MOCK_USER = {
 6. **Unity Integration**: Navigation, back button, deep links
 
 ### 12.3 Unity WebView Testing
+
 - Test on real devices (not simulators)
 - iOS: iPhone 12+ with iOS 14+
 - Android: Pixel 4+ with Android 8+
@@ -625,6 +657,7 @@ const MOCK_USER = {
 ## 13. Deployment
 
 ### 13.1 Environment Setup
+
 ```bash
 # Local development
 npm run dev
@@ -637,6 +670,7 @@ npm run deploy
 ```
 
 ### 13.2 Cloudflare Configuration
+
 ```toml
 # wrangler.toml
 name = "gachapon-player"
@@ -660,24 +694,28 @@ API_BASE_URL = "https://api.gachapon.com/api/v1"
 ## 14. Handoff & Integration Points
 
 ### 14.1 From Unity Team
+
 - JWT token via URL: `?token=xxx&section=yyy`
 - Back button handling via Unity overlay
 - App lifecycle events (pause/resume)
 - Deep link support
 
 ### 14.2 From Auth Team (Friend A)
+
 - Token validation endpoint
 - Token structure documentation
 - User data format
 - Error codes
 
 ### 14.3 From Backend Team (Friend B)
+
 - API documentation (provided)
 - Postman collection
 - WebSocket events (if any)
 - Rate limits
 
 ### 14.4 To Backend Team
+
 - User agent: "GachaponPlayer/1.0"
 - Session tracking headers
 - Error reporting format
@@ -687,13 +725,13 @@ API_BASE_URL = "https://api.gachapon.com/api/v1"
 
 ## 15. Risk Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Auth service delays | High | Mock token system ready |
-| Backend API changes | Medium | Versioned API, adapter pattern |
-| Unity WebView bugs | High | Fallback web version |
-| Payment failures | High | Multiple retry mechanisms |
-| QR scanning issues | High | Manual code entry backup |
+| Risk                 | Impact | Mitigation                       |
+| -------------------- | ------ | -------------------------------- |
+| Auth service delays  | High   | Mock token system ready          |
+| Backend API changes  | Medium | Versioned API, adapter pattern   |
+| Unity WebView bugs   | High   | Fallback web version             |
+| Payment failures     | High   | Multiple retry mechanisms        |
+| QR scanning issues   | High   | Manual code entry backup         |
 | Network connectivity | Medium | Offline detection, queue actions |
 
 ---
@@ -701,6 +739,7 @@ API_BASE_URL = "https://api.gachapon.com/api/v1"
 ## 16. Success Criteria
 
 ### Launch Checklist
+
 - [ ] Unity WebView loads without crashes
 - [ ] Token authentication works
 - [ ] Machines display correctly
@@ -711,8 +750,9 @@ API_BASE_URL = "https://api.gachapon.com/api/v1"
 - [ ] No memory leaks after 100 plays
 
 ### Post-Launch Metrics
+
 - User completion rate > 80%
-- Payment success rate > 95%  
+- Payment success rate > 95%
 - Average play time < 2 minutes
 - WebView crash rate < 0.1%
 - User rating > 4.0/5.0
@@ -735,6 +775,7 @@ API_BASE_URL = "https://api.gachapon.com/api/v1"
 ## Appendices
 
 ### A. Unity WebView Communication Protocol
+
 ```typescript
 // Unity → WebView
 { type: 'token', payload: 'jwt_token' }
@@ -749,26 +790,28 @@ API_BASE_URL = "https://api.gachapon.com/api/v1"
 ```
 
 ### B. Error Codes
+
 ```typescript
 enum ErrorCode {
-  AUTH_FAILED = 'E001',
-  PAYMENT_FAILED = 'E002', 
-  QR_EXPIRED = 'E003',
-  MACHINE_OFFLINE = 'E004',
-  NETWORK_ERROR = 'E005'
+	AUTH_FAILED = 'E001',
+	PAYMENT_FAILED = 'E002',
+	QR_EXPIRED = 'E003',
+	MACHINE_OFFLINE = 'E004',
+	NETWORK_ERROR = 'E005'
 }
 ```
 
 ### C. Analytics Events
+
 ```typescript
 // Track these events
-'page_view'
-'machine_selected'
-'payment_initiated'
-'payment_completed'
-'qr_generated'
-'prize_received'
-'error_occurred'
+'page_view';
+'machine_selected';
+'payment_initiated';
+'payment_completed';
+'qr_generated';
+'prize_received';
+'error_occurred';
 ```
 
 ---

@@ -50,68 +50,73 @@
 <div class="min-h-screen bg-gray-50 pb-20">
 	<NavigationHeader title="My Inventory" showBack={true} />
 
-	<div class="p-6 space-y-6">
+	<div class="space-y-6 p-6" data-testid="inventory-section">
 		<!-- Summary Stats -->
 		<div class="grid grid-cols-3 gap-3">
-			<div class="bg-white rounded-xl p-4 text-center">
+			<div class="rounded-xl bg-white p-4 text-center">
 				<div class="text-2xl font-bold text-yellow-600">{unclaimedItems.length}</div>
-				<div class="text-xs text-gray-600 mt-1">Unclaimed</div>
+				<div class="mt-1 text-xs text-gray-600">Unclaimed</div>
 			</div>
-			<div class="bg-white rounded-xl p-4 text-center">
+			<div class="rounded-xl bg-white p-4 text-center">
 				<div class="text-2xl font-bold text-blue-600">{claimedItems.length}</div>
-				<div class="text-xs text-gray-600 mt-1">Claimed</div>
+				<div class="mt-1 text-xs text-gray-600">Claimed</div>
 			</div>
-			<div class="bg-white rounded-xl p-4 text-center">
+			<div class="rounded-xl bg-white p-4 text-center">
 				<div class="text-2xl font-bold text-green-600">{collectedItems.length}</div>
-				<div class="text-xs text-gray-600 mt-1">Collected</div>
+				<div class="mt-1 text-xs text-gray-600">Collected</div>
 			</div>
 		</div>
 
 		<!-- Unclaimed Items (Priority) -->
 		{#if unclaimedItems.length > 0}
-			<div>
-				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-					<Clock class="w-5 h-5 text-yellow-600" />
+			<div data-testid="inventory-grid">
+				<h2 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+					<Clock class="h-5 w-5 text-yellow-600" />
 					Ready to Claim
 				</h2>
 				<div class="space-y-3">
 					{#each unclaimedItems as item (item.id)}
 						<a
 							href="/inventory/{item.id}"
-							class="block bg-white rounded-xl border-2 border-yellow-200 overflow-hidden hover:shadow-md transition-shadow"
+							data-testid="inventory-item-{item.id}"
+							data-prize-id={item.id}
+							class="block overflow-hidden rounded-xl border-2 border-yellow-200 bg-white transition-shadow hover:shadow-md"
 						>
 							<div class="p-4">
 								<div class="flex items-start gap-3">
 									<!-- Prize Image -->
-									<div class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
+									<div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
 										<img
+											data-testid="prize-image"
 											src={item.prize.imageUrl}
 											alt={item.prize.name}
-											class="w-full h-full object-cover"
+											class="h-full w-full object-cover"
 										/>
 									</div>
 
 									<!-- Prize Info -->
-									<div class="flex-1 min-w-0">
-										<h3 class="font-semibold text-gray-900 mb-1">
+									<div class="min-w-0 flex-1">
+										<h3 class="mb-1 font-semibold text-gray-900" data-testid="prize-name">
 											{item.prize.name}
 										</h3>
-										<p class="text-sm text-gray-600 mb-2">
+										<p class="mb-2 text-sm text-gray-600">
 											Won on {formatDate(item.wonAt)}
 										</p>
 										<span
-											class="inline-flex text-xs font-medium px-2 py-1 rounded bg-yellow-100 text-yellow-800"
+											class="inline-flex rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800"
+											data-testid="prize-status"
 										>
 											{getStatusBadge(item.status).text}
 										</span>
+										<span class="hidden" data-testid="prize-rarity">{item.prize.rarity}</span>
 									</div>
 								</div>
 
 								<!-- QR Code Indicator -->
 								{#if item.collectionQRCode}
-									<div class="mt-3 pt-3 border-t border-gray-100">
-										<div class="text-sm text-gray-600 flex items-center gap-2">
-											<Package class="w-4 h-4" />
+									<div class="mt-3 border-t border-gray-100 pt-3">
+										<div class="flex items-center gap-2 text-sm text-gray-600">
+											<Package class="h-4 w-4" />
 											<span>Tap to view collection QR code</span>
 										</div>
 									</div>
@@ -126,34 +131,34 @@
 		<!-- Claimed Items -->
 		{#if claimedItems.length > 0}
 			<div>
-				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-					<CheckCircle class="w-5 h-5 text-blue-600" />
+				<h2 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+					<CheckCircle class="h-5 w-5 text-blue-600" />
 					Claimed Items
 				</h2>
 				<div class="space-y-3">
 					{#each claimedItems as item (item.id)}
 						<a
 							href="/inventory/{item.id}"
-							class="block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+							class="block overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md"
 						>
 							<div class="p-4">
 								<div class="flex items-start gap-3">
-									<div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+									<div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
 										<img
 											src={item.prize.imageUrl}
 											alt={item.prize.name}
-											class="w-full h-full object-cover"
+											class="h-full w-full object-cover"
 										/>
 									</div>
-									<div class="flex-1 min-w-0">
-										<h3 class="font-semibold text-gray-900 mb-1">
+									<div class="min-w-0 flex-1">
+										<h3 class="mb-1 font-semibold text-gray-900">
 											{item.prize.name}
 										</h3>
-										<p class="text-sm text-gray-600 mb-2">
+										<p class="mb-2 text-sm text-gray-600">
 											Claimed on {item.claimedAt ? formatDate(item.claimedAt) : 'N/A'}
 										</p>
 										<span
-											class="inline-flex text-xs font-medium px-2 py-1 rounded bg-blue-100 text-blue-800"
+											class="inline-flex rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
 										>
 											{getStatusBadge(item.status).text}
 										</span>
@@ -169,24 +174,24 @@
 		<!-- Collected Items -->
 		{#if collectedItems.length > 0}
 			<div>
-				<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-					<Gift class="w-5 h-5 text-green-600" />
+				<h2 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+					<Gift class="h-5 w-5 text-green-600" />
 					Collected
 				</h2>
 				<div class="space-y-3">
 					{#each collectedItems as item (item.id)}
-						<div class="bg-white rounded-xl border border-gray-200 overflow-hidden opacity-75">
+						<div class="overflow-hidden rounded-xl border border-gray-200 bg-white opacity-75">
 							<div class="p-4">
 								<div class="flex items-start gap-3">
-									<div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+									<div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
 										<img
 											src={item.prize.imageUrl}
 											alt={item.prize.name}
-											class="w-full h-full object-cover"
+											class="h-full w-full object-cover"
 										/>
 									</div>
-									<div class="flex-1 min-w-0">
-										<h3 class="font-semibold text-gray-700 mb-1">
+									<div class="min-w-0 flex-1">
+										<h3 class="mb-1 font-semibold text-gray-700">
 											{item.prize.name}
 										</h3>
 										<p class="text-sm text-gray-500">
@@ -203,9 +208,9 @@
 
 		<!-- Empty State -->
 		{#if data.inventory.length === 0}
-			<div class="bg-white rounded-xl p-12 text-center">
-				<Package class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-				<h3 class="text-lg font-semibold text-gray-900 mb-2">No Items Yet</h3>
+			<div class="rounded-xl bg-white p-12 text-center" data-testid="empty-inventory-message">
+				<Package class="mx-auto mb-4 h-16 w-16 text-gray-300" />
+				<h3 class="mb-2 text-lg font-semibold text-gray-900">No Items Yet</h3>
 				<p class="text-gray-600">
 					Play some gacha machines to win prizes and build your collection!
 				</p>

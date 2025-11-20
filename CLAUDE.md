@@ -13,6 +13,7 @@
 **[doc/CLAUDE.md](./doc/CLAUDE.md)** - Documentation Navigation Guide
 
 Central index for all project documentation. Start here to find:
+
 - **PRD** (Product Requirements) - Both condensed (implementation-focused) and original (comprehensive, bilingual)
 - **API Documentation** - Complete backend integration reference
 - **Quick Reference** - Decision trees for which doc to use when

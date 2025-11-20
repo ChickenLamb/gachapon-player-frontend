@@ -35,7 +35,11 @@ export const mockEvents: Record<string, MerchantEvent> = {
 		startDate: new Date('2024-11-15'),
 		endDate: new Date('2025-01-15'),
 		progress: 33, // 1 out of 3 collected
-		requirements: ['Collect: Limited Edition Plushie', 'Collect: Mystery Figure', 'Collect: Golden Ticket'],
+		requirements: [
+			'Collect: Limited Edition Plushie',
+			'Collect: Mystery Figure',
+			'Collect: Golden Ticket'
+		],
 		rewards: ['Exclusive Super Rare Prize', 'RM 100 voucher']
 	},
 	event_004: {

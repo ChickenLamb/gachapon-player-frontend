@@ -1,6 +1,11 @@
 test-results
 node_modules
 
+# E2E Test Generated Files
+tests/e2e/tests/
+*.log
+test-*.log
+
 # Output
 .output
 .vercel

@@ -21,6 +21,7 @@
 
 <div
 	class="animate-spin rounded-full {sizeClasses[size]} {colorClasses[color]}"
+	data-testid="loading-spinner"
 	role="status"
 	aria-label="Loading"
 >

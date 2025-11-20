@@ -79,7 +79,7 @@ function findLocalDatabase() {
 	}
 
 	const files = readdirSync(WRANGLER_D1_DIR);
-	const dbFile = files.find(f => f.endsWith('.sqlite'));
+	const dbFile = files.find((f) => f.endsWith('.sqlite'));
 
 	if (!dbFile) {
 		return null;
@@ -243,7 +243,7 @@ async function main() {
 }
 
 // Execute main function
-main().catch(error => {
+main().catch((error) => {
 	console.error('❌ Unexpected error:', error.message);
 	process.exit(1);
 });

@@ -3,11 +3,7 @@
 	import { CreditCard, Loader2 } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import LoadingSpinner from '$lib/components/base/LoadingSpinner.svelte';
-	import {
-		createPaymentPreview,
-		createPayment,
-		formatPrice
-	} from '$lib/mocks/services/payment';
+	import { createPaymentPreview, createPayment, formatPrice } from '$lib/mocks/services/payment';
 	import { generateQRCode } from '$lib/mocks/services/qr';
 	import type { PaymentPreview } from '$lib/types';
 
@@ -27,10 +23,7 @@
 		try {
 			isLoadingPreview = true;
 			// TODO: Check for applicable events
-			paymentPreview = await createPaymentPreview(
-				data.machine.id,
-				data.machine.pricePerPlay
-			);
+			paymentPreview = await createPaymentPreview(data.machine.id, data.machine.pricePerPlay);
 		} catch {
 			error = 'Failed to load payment details';
 		} finally {
@@ -46,18 +39,10 @@
 			error = null;
 
 			// 1. Create payment
-			const payment = await createPayment(
-				data.user.id,
-				data.machine.id,
-				paymentPreview.total
-			);
+			const payment = await createPayment(data.user.id, data.machine.id, paymentPreview.total);
 
 			// 2. Generate QR code
-			const qrCode = await generateQRCode(
-				data.user.id,
-				data.machine.id,
-				payment.id
-			);
+			const qrCode = await generateQRCode(data.user.id, data.machine.id, payment.id);
 
 			// 3. Navigate to QR display
 			goto(`/machines/${data.machine.id}/qr/${qrCode.id}`);
@@ -71,43 +56,47 @@
 <div class="min-h-screen bg-gray-50">
 	<NavigationHeader title="Payment" showBack={true} />
 
-	<div class="p-6 space-y-6 pb-32">
+	<div class="space-y-6 p-6 pb-32">
 		<!-- Machine Summary -->
-		<div class="bg-white rounded-xl border border-gray-200 p-4">
+		<div class="rounded-xl border border-gray-200 bg-white p-4">
 			<div class="flex gap-4">
-				<div class="w-20 h-20 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+				<div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
 					<img
 						src={data.machine.imageUrl}
 						alt={data.machine.name}
-						class="w-full h-full object-cover"
+						class="h-full w-full object-cover"
 					/>
 				</div>
-				<div class="flex-1 min-w-0">
-					<h2 class="font-semibold text-gray-900 mb-1">{data.machine.name}</h2>
-					<p class="text-sm text-gray-600 truncate">{data.machine.location}</p>
+				<div class="min-w-0 flex-1">
+					<h2 class="mb-1 font-semibold text-gray-900">{data.machine.name}</h2>
+					<p class="truncate text-sm text-gray-600">{data.machine.location}</p>
 				</div>
 			</div>
 		</div>
 
 		<!-- Payment Preview -->
 		{#if isLoadingPreview}
-			<div class="bg-white rounded-xl border border-gray-200 p-8 flex items-center justify-center">
+			<div class="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-8">
 				<LoadingSpinner size="md" />
 			</div>
 		{:else if paymentPreview}
-			<div class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-				<h3 class="font-semibold text-gray-900 mb-3">Payment Summary</h3>
+			<div class="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
+				<h3 class="mb-3 font-semibold text-gray-900">Payment Summary</h3>
 
 				<!-- Subtotal -->
 				<div class="flex justify-between text-sm">
 					<span class="text-gray-600">Subtotal</span>
-					<span class="text-gray-900">{formatPrice(paymentPreview.subtotal)}</span>
+					<span class="text-gray-900" data-testid="payment-subtotal"
+						>{formatPrice(paymentPreview.subtotal)}</span
+					>
 				</div>
 
 				<!-- Tax -->
 				<div class="flex justify-between text-sm">
 					<span class="text-gray-600">Tax (6%)</span>
-					<span class="text-gray-900">{formatPrice(paymentPreview.tax)}</span>
+					<span class="text-gray-900" data-testid="payment-tax"
+						>{formatPrice(paymentPreview.tax)}</span
+					>
 				</div>
 
 				<!-- Discount -->
@@ -121,7 +110,7 @@
 				<div class="border-t border-gray-200 pt-3">
 					<div class="flex justify-between">
 						<span class="font-semibold text-gray-900">Total</span>
-						<span class="text-2xl font-bold text-purple-600">
+						<span class="text-2xl font-bold text-purple-600" data-testid="payment-total">
 							{formatPrice(paymentPreview.total)}
 						</span>
 					</div>
@@ -130,47 +119,46 @@
 		{/if}
 
 		<!-- Payment Method (Mock) -->
-		<div class="bg-white rounded-xl border border-gray-200 p-4">
-			<h3 class="font-semibold text-gray-900 mb-3">Payment Method</h3>
-			<div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-2 border-purple-600">
-				<CreditCard class="w-6 h-6 text-purple-600" />
+		<div class="rounded-xl border border-gray-200 bg-white p-4">
+			<h3 class="mb-3 font-semibold text-gray-900">Payment Method</h3>
+			<div class="flex items-center gap-3 rounded-lg border-2 border-purple-600 bg-gray-50 p-3">
+				<CreditCard class="h-6 w-6 text-purple-600" />
 				<div class="flex-1">
 					<p class="font-medium text-gray-900">Mock Payment</p>
 					<p class="text-xs text-gray-500">Development mode - instant approval</p>
 				</div>
 			</div>
-			<p class="text-xs text-gray-500 mt-3">
+			<p class="mt-3 text-xs text-gray-500">
 				In production, this will use real payment gateway (Stripe, iPay88, etc.)
 			</p>
 		</div>
 
 		<!-- Error Message -->
 		{#if error}
-			<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+			<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 				<p class="text-sm text-red-800">{error}</p>
 			</div>
 		{/if}
 	</div>
 
 	<!-- Fixed Bottom CTA -->
-	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 safe-bottom">
+	<div class="safe-bottom fixed right-0 bottom-0 left-0 border-t border-gray-200 bg-white p-4">
 		<button
 			type="button"
+			data-testid="confirm-payment-button"
 			onclick={handlePayment}
 			disabled={isProcessing || isLoadingPreview || !paymentPreview}
-			class="w-full bg-purple-600 text-white font-semibold py-4 rounded-xl hover:bg-purple-700 active:bg-purple-800 transition-colors shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+			class="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-purple-700 active:bg-purple-800 disabled:cursor-not-allowed disabled:bg-gray-300"
 		>
 			{#if isProcessing}
-				<Loader2 class="w-5 h-5 animate-spin" />
-				<span>Processing...</span>
+				<Loader2 class="h-5 w-5 animate-spin" />
+				<span data-testid="payment-processing">Processing...</span>
 			{:else if paymentPreview}
 				<span>Pay {formatPrice(paymentPreview.total)}</span>
 			{:else}
 				<span>Loading...</span>
 			{/if}
 		</button>
-		<p class="text-center text-xs text-gray-500 mt-2">
-			Secure mock payment for development
-		</p>
+		<p class="mt-2 text-center text-xs text-gray-500">Secure mock payment for development</p>
 	</div>
 </div>

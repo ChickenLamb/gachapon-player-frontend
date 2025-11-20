@@ -85,11 +85,7 @@ export const mockMachines: Record<string, Machine> = {
 		location: 'Pavilion KL - Ground Floor',
 		status: 'AVAILABLE' as MachineStatus,
 		pricePerPlay: 500, // RM 5.00
-		featuredPrizes: [
-			mockPrizes.prize_001,
-			mockPrizes.prize_003,
-			mockPrizes.prize_006
-		],
+		featuredPrizes: [mockPrizes.prize_001, mockPrizes.prize_003, mockPrizes.prize_006],
 		imageUrl: 'https://picsum.photos/seed/machine1/800/600',
 		description:
 			'Premium anime collectibles and limited edition merchandise. High chance of rare items!'
@@ -110,11 +106,7 @@ export const mockMachines: Record<string, Machine> = {
 		location: 'Mid Valley Megamall - LG Floor',
 		status: 'AVAILABLE' as MachineStatus,
 		pricePerPlay: 400, // RM 4.00
-		featuredPrizes: [
-			mockPrizes.prize_003,
-			mockPrizes.prize_008,
-			mockPrizes.prize_004
-		],
+		featuredPrizes: [mockPrizes.prize_003, mockPrizes.prize_008, mockPrizes.prize_004],
 		imageUrl: 'https://picsum.photos/seed/machine3/800/600',
 		description: 'Game credits, free plays, and gaming merchandise!'
 	},
@@ -144,11 +136,7 @@ export const mockMachines: Record<string, Machine> = {
 		location: 'The Gardens Mall - Ground Floor',
 		status: 'AVAILABLE' as MachineStatus,
 		pricePerPlay: 600, // RM 6.00
-		featuredPrizes: [
-			mockPrizes.prize_006,
-			mockPrizes.prize_001,
-			mockPrizes.prize_003
-		],
+		featuredPrizes: [mockPrizes.prize_006, mockPrizes.prize_001, mockPrizes.prize_003],
 		imageUrl: 'https://picsum.photos/seed/machine6/800/600',
 		description: 'Surprise prizes every time! Blind boxes and mystery items.'
 	}
