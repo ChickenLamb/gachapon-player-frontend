@@ -90,6 +90,15 @@ export function createMachineStore() {
 	}
 
 	/**
+	 * Auto-connect to WebSocket on app start (mock)
+	 * In real app, this would establish WS connection when user opens the app
+	 */
+	function autoConnect() {
+		// Reset to idle state, ready for QR scan
+		reset();
+	}
+
+	/**
 	 * Future: Connect to real WebSocket
 	 * Will be called when friend B provides endpoint
 	 */
@@ -130,7 +139,8 @@ export function createMachineStore() {
 		mockScanSuccess,
 		mockScanFail,
 		disconnect,
-		reset
+		reset,
+		autoConnect
 	};
 }
 

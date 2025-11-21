@@ -1,5 +1,6 @@
 // Mock machine and prize data for development
 import type { Machine, Prize, MachineStatus, PrizeType, PrizeStatus } from '$lib/types';
+import { getActiveEventsForMachine } from './events';
 
 // Item images from static assets
 const itemImages = [
@@ -161,9 +162,12 @@ export const mockMachines: Record<string, Machine> = {
 	}
 };
 
-// Helper: Get all machines as array
+// Helper: Get all machines as array (with active events populated)
 export function getAllMachines(): Machine[] {
-	return Object.values(mockMachines);
+	return Object.values(mockMachines).map((machine) => ({
+		...machine,
+		activeEvents: getActiveEventsForMachine(machine.id)
+	}));
 }
 
 // Helper: Get available machines only

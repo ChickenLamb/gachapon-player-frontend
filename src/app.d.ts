@@ -17,6 +17,13 @@ declare global {
 			session: import('$lib/types').GachaponSession | null;
 		}
 	}
+
+	// Unity WebView interface
+	interface Window {
+		Unity?: {
+			call: (method: string) => void;
+		};
+	}
 }
 
 export {};

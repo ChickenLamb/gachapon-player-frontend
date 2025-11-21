@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { CheckCircle2, AlertCircle, Loader2, CreditCard, Gift, X, Ticket, Clock } from 'lucide-svelte';
+	import { CheckCircle2, AlertCircle, Loader2, CreditCard, X, Ticket, Clock } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import DiscountBadge from '$lib/components/DiscountBadge.svelte';
 	import { getMachineContext } from '$lib/stores/machine.svelte';
+	import { formatPrice } from '$lib/mocks/services/payment';
 	import type { MerchantEvent } from '$lib/types';
 
 	let { data } = $props();
@@ -29,7 +30,6 @@
 
 	function closeEventModal() {
 		showEventModal = false;
-		selectedEvent = null;
 	}
 
 	function dismissSpinReminder() {
@@ -63,7 +63,9 @@
 
 	// Get connected machine data (mock - in real app this comes from WS)
 	let connectedMachine = $derived(
-		machine.scanned ? data.machines.find(m => m.id === machine.machineId) || data.machines[0] : null
+		machine.scanned
+			? data.machines.find((m) => m.id === machine.machineId) || data.machines[0]
+			: null
 	);
 
 	// Machine prizes when connected
@@ -76,20 +78,24 @@
 
 	// Featured prizes when not connected (global)
 	let featuredPrizes = $derived(() => {
-		return data.machines.flatMap((m) =>
-			m.featuredPrizes.map(prize => ({ ...prize, machineId: m.id }))
-		).slice(0, 6);
+		return data.machines
+			.flatMap((m) => m.featuredPrizes.map((prize) => ({ ...prize, machineId: m.id })))
+			.slice(0, 6);
 	});
 </script>
 
 <div class="min-h-screen bg-gray-100 pb-4 font-display" data-testid="dashboard-content">
-	<NavigationHeader title="Gashapon" showBack={true} onBack={() => {
-		if (window.Unity?.call) {
-			window.Unity.call('closeWebView');
-		} else {
-			window.location.href = 'unity://close';
-		}
-	}}>
+	<NavigationHeader
+		title="Gashapon"
+		showBack={true}
+		onBack={() => {
+			if (window.Unity?.call) {
+				window.Unity.call('closeWebView');
+			} else {
+				window.location.href = 'unity://close';
+			}
+		}}
+	>
 		{#snippet actions()}
 			{#if !machine.scanned}
 				<div class="flex gap-1">
@@ -118,49 +124,33 @@
 		{#if machine.scanned && connectedMachine}
 			<!-- ========== CONNECTED STATE ========== -->
 
-			<!-- Events Banner (on top when connected) -->
-			{#if data.activeEvents.length > 0}
-				<button
-					type="button"
-					onclick={() => openEventModal(data.activeEvents[0])}
-					class="w-full overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-left text-white shadow-md transition-transform hover:scale-[1.01]"
-				>
-					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-3">
-							<Ticket class="h-6 w-6" />
-							<div>
-								<p class="font-semibold">{data.activeEvents[0].name}</p>
-								<p class="text-xs text-amber-100">Tap to view details</p>
-							</div>
-						</div>
-						{#if getEventDiscountPercentage(data.activeEvents[0]) > 0}
-							<DiscountBadge percentage={getEventDiscountPercentage(data.activeEvents[0])} size="sm" />
-						{/if}
-					</div>
-				</button>
-			{/if}
-
-			<!-- Payment Section (under events) -->
-			<div class="rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 p-5 text-white shadow-lg">
-				<div class="mb-3 flex items-center justify-between">
-					<div class="flex items-center gap-3">
-						<CreditCard class="h-5 w-5" />
-						<div>
-							<p class="text-sm text-purple-200">Price per spin</p>
-							<p class="text-xl font-bold">RM {connectedMachine.pricePerPlay.toFixed(2)}</p>
-						</div>
+			<!-- Machine-Specific Events Carousel (above payment) -->
+			{#if connectedMachine.activeEvents && connectedMachine.activeEvents.length > 0}
+				<div class="relative -mx-4 overflow-x-auto px-4">
+					<div class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
+						{#each connectedMachine.activeEvents as event (event.id)}
+							<button
+								type="button"
+								onclick={() => openEventModal(event)}
+								class="w-[calc(100vw-3rem)] flex-shrink-0 snap-center overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-left text-white shadow-lg transition-transform hover:scale-[1.02]"
+							>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<Ticket class="h-6 w-6" />
+										<div>
+											<p class="font-semibold">{event.name}</p>
+											<p class="text-xs text-amber-100">Valid for this machine only</p>
+										</div>
+									</div>
+									{#if getEventDiscountPercentage(event) > 0}
+										<DiscountBadge percentage={getEventDiscountPercentage(event)} size="sm" />
+									{/if}
+								</div>
+							</button>
+						{/each}
 					</div>
 				</div>
-
-				<a
-					href="/machines/{connectedMachine.id}/payment"
-					class="block w-full rounded-xl bg-white py-3 text-center font-semibold text-purple-600 shadow-md transition-colors hover:bg-purple-50"
-				>
-					Pay & Spin Now
-				</a>
-
-				<p class="mt-2 text-center text-xs text-purple-200">1 payment = 1 spin</p>
-			</div>
+			{/if}
 
 			<!-- Machine Prizes Section (replaces QR when connected) -->
 			<div class="rounded-xl bg-white p-4 shadow-sm">
@@ -205,7 +195,9 @@
 										style="width: {Math.min((machine.spinCount / 10) * 100, 100)}%"
 									></div>
 								</div>
-								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-gold text-sm font-bold text-white">
+								<div
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-gold text-sm font-bold text-white"
+								>
 									+1
 								</div>
 							</div>
@@ -214,16 +206,36 @@
 					</div>
 				</div>
 
+				<!-- Payment Section (after milestone) -->
+				<div
+					class="mb-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 p-5 text-white shadow-lg"
+				>
+					<div class="mb-3 flex items-center justify-between">
+						<div class="flex items-center gap-3">
+							<CreditCard class="h-5 w-5" />
+							<div>
+								<p class="text-sm text-purple-200">Price per spin</p>
+								<p class="text-xl font-bold">{formatPrice(connectedMachine.pricePerPlay)}</p>
+							</div>
+						</div>
+					</div>
+
+					<a
+						href="/machines/{connectedMachine.id}/payment"
+						class="block w-full rounded-xl bg-white py-3 text-center font-semibold text-purple-600 shadow-md transition-colors hover:bg-purple-50"
+					>
+						Pay & Spin Now
+					</a>
+
+					<p class="mt-2 text-center text-xs text-purple-200">1 payment = 1 spin</p>
+				</div>
+
 				<!-- Machine Prizes Grid -->
 				<p class="mb-3 text-sm font-medium text-gray-700">Available Prizes</p>
 				<div class="grid grid-cols-4 gap-2">
 					{#each machinePrizes().slice(0, 8) as prize (prize.id)}
 						<div class="aspect-square overflow-hidden rounded-lg bg-gray-100">
-							<img
-								src={prize.imageUrl}
-								alt={prize.name}
-								class="h-full w-full object-cover"
-							/>
+							<img src={prize.imageUrl} alt={prize.name} class="h-full w-full object-cover" />
 						</div>
 					{/each}
 				</div>
@@ -254,7 +266,9 @@
 										<span>{formatDate(item.wonAt)}</span>
 									</div>
 								</div>
-								<span class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green">
+								<span
+									class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green"
+								>
 									Dispensed
 								</span>
 							</a>
@@ -262,49 +276,48 @@
 					</div>
 				</div>
 			{/if}
-
 		{:else}
 			<!-- ========== NOT CONNECTED STATE ========== -->
 
-			<!-- Events Banner (same position as connected state) -->
+			<!-- Global Events Carousel (above QR) -->
 			{#if data.activeEvents.length > 0}
-				<button
-					type="button"
-					onclick={() => openEventModal(data.activeEvents[0])}
-					class="w-full overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-left text-white shadow-md transition-transform hover:scale-[1.01]"
-				>
-					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-3">
-							<Ticket class="h-6 w-6" />
-							<div>
-								<p class="font-semibold">{data.activeEvents[0].name}</p>
-								<p class="text-xs text-amber-100">Tap to view details</p>
-							</div>
-						</div>
-						{#if getEventDiscountPercentage(data.activeEvents[0]) > 0}
-							<DiscountBadge percentage={getEventDiscountPercentage(data.activeEvents[0])} size="sm" />
-						{/if}
+				<div class="relative -mx-4 overflow-x-auto px-4">
+					<div class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
+						{#each data.activeEvents as event (event.id)}
+							<button
+								type="button"
+								onclick={() => openEventModal(event)}
+								class="w-[calc(100vw-3rem)] flex-shrink-0 snap-center overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-left text-white shadow-lg transition-transform hover:scale-[1.02]"
+							>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<Ticket class="h-6 w-6" />
+										<div>
+											<p class="font-semibold">{event.name}</p>
+											<p class="text-xs text-amber-100">Available at participating machines</p>
+										</div>
+									</div>
+									{#if getEventDiscountPercentage(event) > 0}
+										<DiscountBadge percentage={getEventDiscountPercentage(event)} size="sm" />
+									{/if}
+								</div>
+							</button>
+						{/each}
 					</div>
-				</button>
+				</div>
 			{/if}
 
 			<!-- QR Code Section -->
 			<div class="rounded-2xl bg-white p-6 shadow-sm">
 				<div class="text-center">
 					<h2 class="mb-2 text-lg font-bold text-navy">Connect with Gashapon</h2>
-					<p class="mb-4 text-sm text-gray-500">
-						Show this to the machine to start playing
-					</p>
+					<p class="mb-4 text-sm text-gray-500">Show this to the machine to start playing</p>
 
 					<div
 						class="mx-auto mb-4 inline-block rounded-2xl bg-gradient-to-b from-accent-green/10 to-accent-green/5 p-4"
 						data-testid="user-qr-code"
 					>
-						<img
-							src={getQRCodeUrl(data.user.id)}
-							alt="Your QR Code"
-							class="h-44 w-44"
-						/>
+						<img src={getQRCodeUrl(data.user.id)} alt="Your QR Code" class="h-44 w-44" />
 					</div>
 					<p class="mb-4 font-mono text-sm text-navy">{data.user.id}</p>
 
@@ -336,7 +349,9 @@
 				<div class="flex items-center gap-4">
 					<img src="/machine.svg" alt="Gashapon machine" class="h-32 w-auto" />
 					<p class="text-sm text-gray-600">
-						Hold your QR code near the <span class="font-semibold text-accent-green">Gachapon machine's scan area</span> to connect and earn extra rewards.
+						Hold your QR code near the <span class="font-semibold text-accent-green"
+							>Gachapon machine's scan area</span
+						> to connect and earn extra rewards.
 					</p>
 				</div>
 			</div>
@@ -359,11 +374,7 @@
 								class="block overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md"
 							>
 								<div class="aspect-square bg-gray-50 p-2">
-									<img
-										src={prize.imageUrl}
-										alt={prize.name}
-										class="h-full w-full object-contain"
-									/>
+									<img src={prize.imageUrl} alt={prize.name} class="h-full w-full object-contain" />
 								</div>
 							</a>
 						{/each}
@@ -380,7 +391,9 @@
 		<div class="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl">
 			<!-- Modal Header -->
 			<div class="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-center text-white">
-				<div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+				<div
+					class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20"
+				>
 					<CheckCircle2 class="h-10 w-10" />
 				</div>
 				<h2 class="text-xl font-bold">Payment Successful!</h2>
@@ -407,19 +420,25 @@
 				<!-- Instructions -->
 				<div class="mb-6 space-y-3">
 					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600">
+						<div
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600"
+						>
 							1
 						</div>
 						<p class="text-sm text-gray-700">Go to the machine</p>
 					</div>
 					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600">
+						<div
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600"
+						>
 							2
 						</div>
 						<p class="text-sm text-gray-700">Turn the handle to spin</p>
 					</div>
 					<div class="flex items-center gap-3">
-						<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600">
+						<div
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600"
+						>
 							3
 						</div>
 						<p class="text-sm text-gray-700">Collect your prize!</p>

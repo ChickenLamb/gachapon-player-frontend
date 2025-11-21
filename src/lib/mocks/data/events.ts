@@ -10,8 +10,9 @@ export const mockEvents: Record<string, MerchantEvent> = {
 		joinMode: 'AUTO' as EventJoinMode,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2024-12-31'),
+		machineIds: ['machine_001'], // Anime Paradise only
 		progress: 67, // 2 out of 3 plays completed
-		requirements: ['Play any machine 3 times'],
+		requirements: ['Play Anime Paradise 3 times'],
 		rewards: ['1 free play token']
 	},
 	event_002: {
@@ -22,6 +23,7 @@ export const mockEvents: Record<string, MerchantEvent> = {
 		joinMode: 'AUTO' as EventJoinMode,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2024-11-30'),
+		machineIds: undefined, // Global event - all machines
 		progress: undefined,
 		requirements: ['Available Sat-Sun only'],
 		rewards: ['20% discount on all machines']
@@ -34,6 +36,7 @@ export const mockEvents: Record<string, MerchantEvent> = {
 		joinMode: 'MANUAL' as EventJoinMode,
 		startDate: new Date('2024-11-15'),
 		endDate: new Date('2025-01-15'),
+		machineIds: ['machine_001', 'machine_006'], // Anime Paradise and Mystery Box
 		progress: 33, // 1 out of 3 collected
 		requirements: [
 			'Collect: Limited Edition Plushie',
@@ -50,9 +53,23 @@ export const mockEvents: Record<string, MerchantEvent> = {
 		joinMode: 'AUTO' as EventJoinMode,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2025-12-31'),
+		machineIds: undefined, // Global event - all machines
 		progress: 100, // Already used
 		requirements: ['First play only'],
 		rewards: ['50% off first play']
+	},
+	event_005: {
+		id: 'event_005',
+		name: 'Foodie Special',
+		description: 'Get 30% off on dining vouchers!',
+		type: 'DISCOUNT' as EventType,
+		joinMode: 'AUTO' as EventJoinMode,
+		startDate: new Date('2024-11-01'),
+		endDate: new Date('2024-12-31'),
+		machineIds: ['machine_002'], // Foodie Rewards only
+		progress: undefined,
+		requirements: ['Valid for Foodie Rewards machine'],
+		rewards: ['30% off dining vouchers']
 	}
 };
 
@@ -70,4 +87,20 @@ export function getActiveEvents(): MerchantEvent[] {
 // Helper: Get event by ID
 export function getEventById(id: string): MerchantEvent | null {
 	return mockEvents[id] || null;
+}
+
+// Helper: Get active events for a specific machine
+export function getActiveEventsForMachine(machineId: string): MerchantEvent[] {
+	const now = new Date();
+	return getAllEvents().filter((event) => {
+		// Check if event is active (within date range)
+		const isActive = event.startDate <= now && event.endDate >= now;
+
+		// Check if event applies to this machine
+		// If machineIds is undefined or empty, it's a global event
+		const appliesToMachine =
+			!event.machineIds || event.machineIds.length === 0 || event.machineIds.includes(machineId);
+
+		return isActive && appliesToMachine;
+	});
 }

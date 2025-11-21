@@ -32,6 +32,7 @@ export interface Machine {
 	status: MachineStatus;
 	pricePerPlay: number; // In cents (e.g., 500 = RM 5.00)
 	featuredPrizes: Prize[];
+	activeEvents?: MerchantEvent[]; // Machine-specific events
 	imageUrl?: string;
 	description?: string;
 }
@@ -113,6 +114,7 @@ export interface MerchantEvent {
 	joinMode: EventJoinMode;
 	startDate: Date;
 	endDate: Date;
+	machineIds?: string[]; // Machine IDs this event applies to (empty/null = global event)
 	progress?: number; // 0-100 percentage
 	requirements?: string[];
 	rewards?: string[];

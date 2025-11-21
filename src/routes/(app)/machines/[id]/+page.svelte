@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { MapPin, Sparkles, QrCode } from 'lucide-svelte';
+	import { MapPin } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import { formatPrice } from '$lib/mocks/services/payment';
-	import { getRarityColor, getRarityText } from '$lib/mocks/services/play';
 
 	let { data } = $props();
 
@@ -71,7 +70,7 @@
 				onclick={goToDashboard}
 				class="flex w-full items-center justify-center gap-2 rounded-full bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light active:bg-navy-dark"
 			>
-				<span>More</span>
+				<span>Connect to Gachapon</span>
 			</button>
 		{:else if data.machine.status === 'MAINTENANCE'}
 			<button

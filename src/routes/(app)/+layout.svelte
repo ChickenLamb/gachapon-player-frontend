@@ -17,9 +17,13 @@
 	let tcAccepted = $state(false);
 	let showTcModal = $state(false);
 
-	// Check localStorage on mount - compare stored version with current
+	// Auto-connect to WebSocket and check T&C on mount
 	$effect(() => {
 		if (browser) {
+			// Simulate WebSocket connection on app start (clears dismissed events)
+			machineStore.autoConnect();
+
+			// Check T&C acceptance
 			const acceptedVersion = localStorage.getItem(TC_STORAGE_KEY);
 			if (acceptedVersion === TC_VERSION) {
 				tcAccepted = true;
@@ -42,7 +46,7 @@
 	{@render children()}
 
 	<!-- Footer with T&C Link -->
-	<footer class="bg-gray-100 px-4 pb-24 pt-3 text-center">
+	<footer class="bg-gray-100 px-4 pt-3 pb-24 text-center">
 		<button
 			type="button"
 			onclick={() => (showTcModal = true)}
@@ -61,8 +65,12 @@
 	<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
 		<div class="max-h-[90vh] w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
 			<!-- Header Image -->
-			<div class="relative bg-gradient-to-br from-purple-600 to-purple-800 p-6 text-center text-white">
-				<div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+			<div
+				class="relative bg-gradient-to-br from-purple-600 to-purple-800 p-6 text-center text-white"
+			>
+				<div
+					class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20"
+				>
 					<ScrollText class="h-8 w-8" />
 				</div>
 				<h1 class="text-xl font-bold">Welcome to Gachapon!</h1>
@@ -77,15 +85,24 @@
 						<h3 class="mb-2 font-semibold text-gray-900">How It Works</h3>
 						<ol class="space-y-2 text-sm text-gray-600">
 							<li class="flex gap-2">
-								<span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600">1</span>
+								<span
+									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600"
+									>1</span
+								>
 								<span>Show your QR code to the machine</span>
 							</li>
 							<li class="flex gap-2">
-								<span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600">2</span>
+								<span
+									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600"
+									>2</span
+								>
 								<span>Complete payment on your phone</span>
 							</li>
 							<li class="flex gap-2">
-								<span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600">3</span>
+								<span
+									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600"
+									>3</span
+								>
 								<span>Turn the handle and collect your prize!</span>
 							</li>
 						</ol>
@@ -115,7 +132,10 @@
 
 					<!-- Additional Info -->
 					<div class="text-xs text-gray-500">
-						<p>By accepting, you agree to our Terms of Service and Privacy Policy. You must be 18 years or older to use this service.</p>
+						<p>
+							By accepting, you agree to our Terms of Service and Privacy Policy. You must be 18
+							years or older to use this service.
+						</p>
 					</div>
 				</div>
 			</div>
