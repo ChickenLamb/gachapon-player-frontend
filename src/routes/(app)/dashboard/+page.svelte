@@ -82,16 +82,39 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gray-50 pb-20" data-testid="dashboard-content">
-	<NavigationHeader title="Gachapon" showBack={true} onBack={() => {
+<div class="min-h-screen bg-gray-100 pb-4 font-display" data-testid="dashboard-content">
+	<NavigationHeader title="Gashapon" showBack={true} onBack={() => {
 		if (window.Unity?.call) {
 			window.Unity.call('closeWebView');
 		} else {
 			window.location.href = 'unity://close';
 		}
-	}} />
+	}}>
+		{#snippet actions()}
+			{#if !machine.scanned}
+				<div class="flex gap-1">
+					<button
+						type="button"
+						onclick={() => machine.mockScanSuccess()}
+						disabled={machine.status === 'connecting'}
+						class="rounded px-2 py-1 text-xs font-medium text-green-600 transition-colors hover:bg-green-50 disabled:text-green-300"
+					>
+						✓
+					</button>
+					<button
+						type="button"
+						onclick={() => machine.mockScanFail()}
+						disabled={machine.status === 'connecting'}
+						class="rounded px-2 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:text-red-300"
+					>
+						✕
+					</button>
+				</div>
+			{/if}
+		{/snippet}
+	</NavigationHeader>
 
-	<div class="space-y-6 px-4 py-6">
+	<div class="space-y-4 px-4 py-4">
 		{#if machine.scanned && connectedMachine}
 			<!-- ========== CONNECTED STATE ========== -->
 
@@ -161,23 +184,35 @@
 					<button
 						type="button"
 						onclick={() => machine.disconnect()}
-						class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-200"
+						class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
 					>
 						Disconnect
 					</button>
 				</div>
 
-				<!-- Bonus Spins Badge -->
-				{#if machine.spinCount > 0}
-					<div class="mb-4 rounded-lg bg-orange-50 p-3">
-						<div class="flex items-center justify-center gap-2 text-orange-600">
-							<Gift class="h-5 w-5" />
-							<span class="font-semibold">
-								{machine.spinCount} Bonus Spin{machine.spinCount > 1 ? 's' : ''} Available!
-							</span>
+				<!-- Spin Tracker -->
+				<div class="mb-4 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 p-4">
+					<div class="flex items-center gap-4">
+						<img src="/machine-milestone.svg" alt="Milestone" class="h-20 w-auto" />
+						<div class="flex-1">
+							<div class="mb-1">
+								<span class="font-bold text-navy">One Extra Spin</span>
+							</div>
+							<div class="flex items-center gap-2">
+								<div class="h-3 flex-1 overflow-hidden rounded-full bg-gray-200">
+									<div
+										class="h-full bg-gradient-to-r from-accent-gold to-amber-400 transition-all"
+										style="width: {Math.min((machine.spinCount / 10) * 100, 100)}%"
+									></div>
+								</div>
+								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-gold text-sm font-bold text-white">
+									+1
+								</div>
+							</div>
+							<p class="mt-1 text-sm text-gray-500">{machine.spinCount}/10</p>
 						</div>
 					</div>
-				{/if}
+				</div>
 
 				<!-- Machine Prizes Grid -->
 				<p class="mb-3 text-sm font-medium text-gray-700">Available Prizes</p>
@@ -203,23 +238,23 @@
 						{#each data.inventory.slice(0, 3) as item (item.id)}
 							<a
 								href="/history/{item.id}"
-								class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 transition-shadow hover:shadow-md"
+								class="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
 							>
-								<div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+								<div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50 p-1">
 									<img
-										src={item.prize.imageUrl}
-										alt={item.prize.name}
-										class="h-full w-full object-cover"
+										src={item.machineImageUrl || '/machine.svg'}
+										alt={item.machineName}
+										class="h-full w-full object-contain"
 									/>
 								</div>
 								<div class="min-w-0 flex-1">
-									<p class="truncate font-medium text-gray-900">{item.prize.name}</p>
+									<p class="truncate font-bold text-navy">{item.machineName}</p>
 									<div class="flex items-center gap-2 text-xs text-gray-500">
 										<Clock class="h-3 w-3" />
 										<span>{formatDate(item.wonAt)}</span>
 									</div>
 								</div>
-								<span class="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+								<span class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green">
 									Dispensed
 								</span>
 							</a>
@@ -254,23 +289,24 @@
 			{/if}
 
 			<!-- QR Code Section -->
-			<div class="rounded-xl bg-white p-6 shadow-sm">
+			<div class="rounded-2xl bg-white p-6 shadow-sm">
 				<div class="text-center">
-					<h2 class="mb-2 text-lg font-semibold text-gray-900">Your QR Code</h2>
-					<p class="mb-4 text-sm text-gray-600">
+					<h2 class="mb-2 text-lg font-bold text-navy">Connect with Gashapon</h2>
+					<p class="mb-4 text-sm text-gray-500">
 						Show this to the machine to start playing
 					</p>
 
 					<div
-						class="mx-auto mb-4 inline-block rounded-xl border-4 border-purple-600 bg-white p-3"
+						class="mx-auto mb-4 inline-block rounded-2xl bg-gradient-to-b from-accent-green/10 to-accent-green/5 p-4"
 						data-testid="user-qr-code"
 					>
 						<img
 							src={getQRCodeUrl(data.user.id)}
 							alt="Your QR Code"
-							class="h-40 w-40"
+							class="h-44 w-44"
 						/>
 					</div>
+					<p class="mb-4 font-mono text-sm text-navy">{data.user.id}</p>
 
 					{#if machine.status === 'idle'}
 						<p class="text-sm text-gray-500">Waiting for machine scan...</p>
@@ -288,52 +324,46 @@
 							<p class="mt-1 text-sm text-red-700">{machine.error}</p>
 						</div>
 					{/if}
+				</div>
+			</div>
 
-					<!-- Mock Scan Buttons (Dev Only) -->
-					<div class="mt-4 border-t border-gray-200 pt-4">
-						<p class="mb-2 text-xs text-gray-500">Dev Mode</p>
-						<div class="flex justify-center gap-2">
-							<button
-								type="button"
-								onclick={() => machine.mockScanSuccess()}
-								disabled={machine.status === 'connecting'}
-								class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:bg-green-300"
-							>
-								{machine.status === 'connecting' ? 'Connecting...' : 'Mock Success'}
-							</button>
-							<button
-								type="button"
-								onclick={() => machine.mockScanFail()}
-								disabled={machine.status === 'connecting'}
-								class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:bg-red-300"
-							>
-								Mock Fail
-							</button>
-						</div>
-					</div>
+			<!-- How to Scan Section -->
+			<div class="rounded-2xl bg-white p-4 shadow-sm">
+				<h3 class="mb-3 flex items-center gap-2 font-bold text-navy">
+					<span class="h-5 w-1 rounded-full bg-accent-green"></span>
+					HOW TO SCAN?
+				</h3>
+				<div class="flex items-center gap-4">
+					<img src="/machine.svg" alt="Gashapon machine" class="h-32 w-auto" />
+					<p class="text-sm text-gray-600">
+						Hold your QR code near the <span class="font-semibold text-accent-green">Gachapon machine's scan area</span> to connect and earn extra rewards.
+					</p>
 				</div>
 			</div>
 
 			<!-- Featured Prizes Section -->
 			{#if featuredPrizes().length > 0}
 				<div>
-					<SectionHeader title="Featured Prizes" viewAllHref="/machines" />
+					<div class="mb-3 flex items-center justify-between">
+						<h3 class="flex items-center gap-2 font-bold text-navy">
+							<span class="h-5 w-1 rounded-full bg-accent-green"></span>
+							New product
+						</h3>
+						<a href="/machines" class="text-sm font-medium text-accent-green">view all</a>
+					</div>
 
 					<div class="grid grid-cols-3 gap-3">
 						{#each featuredPrizes() as prize, index (prize.id + '-' + index)}
 							<a
 								href="/machines/{prize.machineId}"
-								class="block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+								class="block overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md"
 							>
-								<div class="aspect-square bg-gray-100">
+								<div class="aspect-square bg-gray-50 p-2">
 									<img
 										src={prize.imageUrl}
 										alt={prize.name}
-										class="h-full w-full object-cover"
+										class="h-full w-full object-contain"
 									/>
-								</div>
-								<div class="p-2">
-									<p class="line-clamp-2 text-xs font-medium text-gray-900">{prize.name}</p>
 								</div>
 							</a>
 						{/each}

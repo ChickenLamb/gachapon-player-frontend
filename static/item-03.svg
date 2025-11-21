@@ -1,0 +1,14 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .outline { stroke: #3E2723; stroke-width: 6px; stroke-linecap: round; stroke-linejoin: round; }
+      .shine { fill: white; opacity: 0.5; }
+    </style>
+  </defs>
+  <circle cx="50" cy="50" r="40" fill="#2d3436" class="outline"/>
+  <circle cx="50" cy="50" r="20" fill="white" class="outline" stroke-width="4px"/>
+  <path d="M50 42C47.5 42 46 43.5 46 46C46 48.5 47.5 50 50 50C52.5 50 54 48.5 54 46C54 43.5 52.5 42 50 42ZM50 58C47 58 45 56 45 53C45 50 47 49 50 49C53 49 55 50 55 53C55 56 53 58 50 58Z" fill="#2d3436"/>
+  <circle cx="50" cy="46" r="3" fill="#2d3436"/>
+  <circle cx="50" cy="53.5" r="4" fill="#2d3436"/>
+  <ellipse cx="35" cy="35" rx="14" ry="8" transform="rotate(-45 35 35)" class="shine"/>
+</svg>

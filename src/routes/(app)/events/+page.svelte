@@ -45,13 +45,16 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-50 pb-20">
+<div class="min-h-screen bg-gray-100 pb-20 font-display">
 	<NavigationHeader title="Events & Promotions" showBack={true} />
 
-	<div class="space-y-6 p-6">
+	<div class="space-y-4 p-4">
 		<!-- Active Events -->
 		<div data-testid="events-section">
-			<h2 class="mb-4 text-lg font-semibold text-gray-900">Active Events</h2>
+			<h3 class="mb-3 flex items-center gap-2 font-bold text-navy">
+				<span class="h-5 w-1 rounded-full bg-accent-green"></span>
+				Active Events
+			</h3>
 			<div class="space-y-4">
 				{#each data.events.filter(isEventActive) as event (event.id)}
 					{@const Icon = getEventIcon(event.type)}
@@ -59,25 +62,21 @@
 						href="/events/{event.id}"
 						data-testid="event-card-{event.id}"
 						data-event-id={event.id}
-						class="block rounded-xl border-2 bg-white {getEventColor(
-							event.type
-						)} overflow-hidden transition-shadow hover:shadow-md"
+						class="block overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md"
 					>
 						<div class="p-4">
 							<!-- Event Header -->
 							<div class="mb-3 flex items-start gap-3">
 								<div
-									class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full {getEventColor(
-										event.type
-									)}"
+									class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-accent-green/10"
 								>
-									<Icon class="h-6 w-6" />
+									<Icon class="h-6 w-6 text-accent-green" />
 								</div>
 								<div class="min-w-0 flex-1">
-									<h3 class="mb-1 font-semibold text-gray-900" data-testid="event-name">
+									<h3 class="mb-1 font-bold text-navy" data-testid="event-name">
 										{event.name}
 									</h3>
-									<p class="line-clamp-2 text-sm text-gray-600" data-testid="event-description">
+									<p class="line-clamp-2 text-sm text-gray-500" data-testid="event-description">
 										{event.description}
 									</p>
 									<span class="hidden" data-testid="event-type">{event.type}</span>
@@ -88,14 +87,14 @@
 							{#if event.progress !== undefined}
 								<div class="mb-3">
 									<div class="mb-1 flex items-center justify-between text-sm">
-										<span class="text-gray-600">Progress</span>
-										<span class="font-medium text-gray-900" data-testid="event-progress"
+										<span class="text-gray-500">Progress</span>
+										<span class="font-medium text-navy" data-testid="event-progress"
 											>{event.progress}%</span
 										>
 									</div>
 									<div class="h-2 overflow-hidden rounded-full bg-gray-200">
 										<div
-											class="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all"
+											class="h-full bg-gradient-to-r from-accent-green to-accent-green/80 transition-all"
 											style="width: {event.progress}%"
 										></div>
 									</div>
@@ -103,7 +102,7 @@
 							{/if}
 
 							<!-- Event Dates -->
-							<div class="flex items-center gap-2 text-sm text-gray-600">
+							<div class="flex items-center gap-2 text-sm text-gray-500">
 								<Calendar class="h-4 w-4" />
 								<span>
 									{formatDate(event.startDate)} - {formatDate(event.endDate)}
@@ -114,13 +113,13 @@
 							<div class="mt-3">
 								{#if event.joinMode === 'AUTO'}
 									<span
-										class="inline-flex rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
+										class="inline-flex rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green"
 									>
 										Auto-joined
 									</span>
 								{:else}
 									<span
-										class="inline-flex rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800"
+										class="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600"
 									>
 										Manual join required
 									</span>
@@ -135,22 +134,25 @@
 		<!-- Upcoming/Expired Events -->
 		{#if data.events.filter((e) => !isEventActive(e)).length > 0}
 			<div>
-				<h2 class="mb-4 text-lg font-semibold text-gray-900">Past Events</h2>
-				<div class="space-y-4">
+				<h3 class="mb-3 flex items-center gap-2 font-bold text-navy">
+					<span class="h-5 w-1 rounded-full bg-gray-300"></span>
+					Past Events
+				</h3>
+				<div class="space-y-3">
 					{#each data.events.filter((e) => !isEventActive(e)) as event (event.id)}
 						{@const Icon = getEventIcon(event.type)}
-						<div class="rounded-xl border border-gray-200 bg-white p-4 opacity-60">
+						<div class="rounded-2xl bg-white p-4 opacity-60 shadow-sm">
 							<div class="flex items-start gap-3">
 								<div
-									class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
+									class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100"
 								>
 									<Icon class="h-5 w-5 text-gray-400" />
 								</div>
 								<div class="min-w-0 flex-1">
-									<h3 class="mb-1 font-semibold text-gray-700">
+									<h3 class="mb-1 font-bold text-gray-500">
 										{event.name}
 									</h3>
-									<p class="text-sm text-gray-500">
+									<p class="text-sm text-gray-400">
 										Ended {formatDate(event.endDate)}
 									</p>
 								</div>

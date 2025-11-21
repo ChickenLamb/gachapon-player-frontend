@@ -127,7 +127,10 @@ export type InventoryItemStatus = 'UNCLAIMED' | 'CLAIMED' | 'COLLECTED';
 export interface InventoryItem {
 	id: string;
 	userId: string;
-	prize: Prize;
+	machineId: string;
+	machineName: string;
+	machineImageUrl?: string;
+	pricePerPlay: number; // In cents (e.g., 500 = RM 5.00)
 	wonAt: Date;
 	status: InventoryItemStatus;
 	collectionQRCode?: string;

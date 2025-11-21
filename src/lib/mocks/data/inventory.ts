@@ -1,12 +1,15 @@
-// Mock inventory data
+// Mock inventory data - uses actual machine data for realistic mock
 import type { InventoryItem, InventoryItemStatus } from '$lib/types';
-import { mockPrizes } from './machines';
+import { mockMachines } from './machines';
 
 export const mockInventory: Record<string, InventoryItem> = {
 	inv_001: {
 		id: 'inv_001',
 		userId: 'player_456',
-		prize: mockPrizes.prize_001,
+		machineId: mockMachines.machine_001.id,
+		machineName: mockMachines.machine_001.name,
+		machineImageUrl: mockMachines.machine_001.imageUrl,
+		pricePerPlay: mockMachines.machine_001.pricePerPlay,
 		wonAt: new Date('2024-11-15T10:30:00'),
 		status: 'UNCLAIMED' as InventoryItemStatus,
 		collectionQRCode: 'qr_collection_001'
@@ -14,7 +17,10 @@ export const mockInventory: Record<string, InventoryItem> = {
 	inv_002: {
 		id: 'inv_002',
 		userId: 'player_456',
-		prize: mockPrizes.prize_002,
+		machineId: mockMachines.machine_002.id,
+		machineName: mockMachines.machine_002.name,
+		machineImageUrl: mockMachines.machine_002.imageUrl,
+		pricePerPlay: mockMachines.machine_002.pricePerPlay,
 		wonAt: new Date('2024-11-18T14:20:00'),
 		status: 'CLAIMED' as InventoryItemStatus,
 		claimedAt: new Date('2024-11-18T14:25:00')
@@ -22,7 +28,10 @@ export const mockInventory: Record<string, InventoryItem> = {
 	inv_003: {
 		id: 'inv_003',
 		userId: 'player_456',
-		prize: mockPrizes.prize_004,
+		machineId: mockMachines.machine_003.id,
+		machineName: mockMachines.machine_003.name,
+		machineImageUrl: mockMachines.machine_003.imageUrl,
+		pricePerPlay: mockMachines.machine_003.pricePerPlay,
 		wonAt: new Date('2024-11-10T09:15:00'),
 		status: 'COLLECTED' as InventoryItemStatus,
 		claimedAt: new Date('2024-11-10T09:20:00')
@@ -30,7 +39,10 @@ export const mockInventory: Record<string, InventoryItem> = {
 	inv_004: {
 		id: 'inv_004',
 		userId: 'player_456',
-		prize: mockPrizes.prize_003,
+		machineId: mockMachines.machine_001.id,
+		machineName: mockMachines.machine_001.name,
+		machineImageUrl: mockMachines.machine_001.imageUrl,
+		pricePerPlay: mockMachines.machine_001.pricePerPlay,
 		wonAt: new Date('2024-11-19T16:45:00'),
 		status: 'UNCLAIMED' as InventoryItemStatus,
 		collectionQRCode: 'qr_collection_004'
@@ -38,7 +50,10 @@ export const mockInventory: Record<string, InventoryItem> = {
 	inv_005: {
 		id: 'inv_005',
 		userId: 'player_789',
-		prize: mockPrizes.prize_006,
+		machineId: mockMachines.machine_002.id,
+		machineName: mockMachines.machine_002.name,
+		machineImageUrl: mockMachines.machine_002.imageUrl,
+		pricePerPlay: mockMachines.machine_002.pricePerPlay,
 		wonAt: new Date('2024-11-17T11:30:00'),
 		status: 'UNCLAIMED' as InventoryItemStatus,
 		collectionQRCode: 'qr_collection_005'

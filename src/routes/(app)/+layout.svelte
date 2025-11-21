@@ -42,7 +42,7 @@
 	{@render children()}
 
 	<!-- Footer with T&C Link -->
-	<footer class="bg-gray-100 px-4 pb-24 pt-6 text-center">
+	<footer class="bg-gray-100 px-4 pb-24 pt-3 text-center">
 		<button
 			type="button"
 			onclick={() => (showTcModal = true)}

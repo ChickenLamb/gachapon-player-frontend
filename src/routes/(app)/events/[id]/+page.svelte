@@ -48,37 +48,35 @@
 	let active = $derived(isEventActive(data.event));
 </script>
 
-<div class="min-h-screen bg-gray-50 pb-20">
+<div class="min-h-screen bg-gray-100 pb-20 font-display">
 	<NavigationHeader title={data.event.name} showBack={true} />
 
-	<div class="space-y-6 p-6" data-testid="event-detail">
+	<div class="space-y-4 p-4" data-testid="event-detail">
 		<!-- Event Header Card -->
-		<div class="rounded-xl border-2 bg-white {getEventColor(data.event.type)} overflow-hidden">
-			<div class="p-6">
+		<div class="overflow-hidden rounded-2xl bg-white shadow-sm">
+			<div class="p-4">
 				<!-- Icon and Title -->
 				<div class="mb-4 flex items-start gap-4">
 					<div
-						class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full {getEventColor(
-							data.event.type
-						)}"
+						class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-accent-green/10"
 					>
-						<EventIcon class="h-8 w-8" />
+						<EventIcon class="h-7 w-7 text-accent-green" />
 					</div>
 					<div class="min-w-0 flex-1">
-						<h1 class="mb-2 text-2xl font-bold text-gray-900" data-testid="event-title">
+						<h1 class="mb-2 text-xl font-bold text-navy" data-testid="event-title">
 							{data.event.name}
 						</h1>
 						<div class="flex items-center gap-2 text-sm">
 							{#if active}
 								<span
-									class="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-1 font-medium text-green-800"
+									class="inline-flex items-center gap-1 rounded-full bg-accent-green/10 px-2 py-0.5 font-medium text-accent-green"
 								>
 									<CheckCircle class="h-3 w-3" />
 									Active
 								</span>
 							{:else}
 								<span
-									class="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-1 font-medium text-gray-600"
+									class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 font-medium text-gray-500"
 								>
 									<Clock class="h-3 w-3" />
 									Ended
@@ -86,13 +84,13 @@
 							{/if}
 							{#if data.event.joinMode === 'AUTO'}
 								<span
-									class="inline-flex rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
+									class="inline-flex rounded-full bg-navy/10 px-2 py-0.5 text-xs font-medium text-navy"
 								>
 									Auto-joined
 								</span>
 							{:else}
 								<span
-									class="inline-flex rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800"
+									class="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600"
 								>
 									Manual join
 								</span>
@@ -102,7 +100,7 @@
 				</div>
 
 				<!-- Event Dates -->
-				<div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
+				<div class="mb-4 flex items-center gap-2 text-sm text-gray-500">
 					<Calendar class="h-4 w-4" />
 					<span>
 						{formatDate(data.event.startDate)} - {formatDate(data.event.endDate)}
@@ -113,12 +111,12 @@
 				{#if data.event.progress !== undefined}
 					<div class="mb-4">
 						<div class="mb-2 flex items-center justify-between text-sm">
-							<span class="font-medium text-gray-600">Your Progress</span>
-							<span class="font-bold text-gray-900">{data.event.progress}%</span>
+							<span class="font-medium text-gray-500">Your Progress</span>
+							<span class="font-bold text-navy">{data.event.progress}%</span>
 						</div>
 						<div class="h-3 overflow-hidden rounded-full bg-gray-200">
 							<div
-								class="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all"
+								class="h-full bg-gradient-to-r from-accent-green to-accent-green/80 transition-all"
 								style="width: {data.event.progress}%"
 							></div>
 						</div>
@@ -128,8 +126,8 @@
 		</div>
 
 		<!-- Description Section -->
-		<div class="space-y-4 rounded-xl bg-white p-6">
-			<h2 class="text-lg font-semibold text-gray-900">Event Details</h2>
+		<div class="rounded-2xl bg-white p-4 shadow-sm">
+			<h3 class="mb-3 font-bold text-navy">Event Details</h3>
 			<p class="leading-relaxed text-gray-600" data-testid="event-description">
 				{data.event.description}
 			</p>
@@ -137,15 +135,15 @@
 
 		<!-- Requirements Section (if applicable) -->
 		{#if data.event.requirements}
-			<div class="space-y-4 rounded-xl bg-white p-6" data-testid="event-requirements">
-				<h2 class="flex items-center gap-2 text-lg font-semibold text-gray-900">
-					<Target class="h-5 w-5 text-purple-600" />
+			<div class="rounded-2xl bg-white p-4 shadow-sm" data-testid="event-requirements">
+				<h3 class="mb-3 flex items-center gap-2 font-bold text-navy">
+					<Target class="h-5 w-5 text-accent-green" />
 					Requirements
-				</h2>
+				</h3>
 				<ul class="space-y-2">
 					{#each data.event.requirements as requirement, i (requirement)}
 						<li class="flex items-start gap-2 text-gray-600" data-testid="requirement-{i}">
-							<CheckCircle class="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
+							<CheckCircle class="mt-0.5 h-5 w-5 flex-shrink-0 text-accent-green" />
 							<span>{requirement}</span>
 						</li>
 					{/each}
@@ -155,15 +153,15 @@
 
 		<!-- Rewards Section (if applicable) -->
 		{#if data.event.rewards}
-			<div class="space-y-4 rounded-xl bg-white p-6" data-testid="event-rewards">
-				<h2 class="flex items-center gap-2 text-lg font-semibold text-gray-900">
-					<Gift class="h-5 w-5 text-purple-600" />
+			<div class="rounded-2xl bg-white p-4 shadow-sm" data-testid="event-rewards">
+				<h3 class="mb-3 flex items-center gap-2 font-bold text-navy">
+					<Gift class="h-5 w-5 text-accent-gold" />
 					Rewards
-				</h2>
+				</h3>
 				<ul class="space-y-2">
 					{#each data.event.rewards as reward (reward)}
 						<li class="flex items-start gap-2 text-gray-600">
-							<Trophy class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-500" />
+							<Trophy class="mt-0.5 h-5 w-5 flex-shrink-0 text-accent-gold" />
 							<span>{reward}</span>
 						</li>
 					{/each}
@@ -173,9 +171,9 @@
 
 		<!-- Action Button (for manual join events) -->
 		{#if data.event.joinMode === 'MANUAL' && active}
-			<div class="rounded-xl bg-white p-6">
+			<div class="rounded-2xl bg-white p-4 shadow-sm">
 				<button
-					class="w-full rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-purple-800"
+					class="w-full rounded-full bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light active:bg-navy-dark"
 				>
 					Join Event
 				</button>

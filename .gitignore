@@ -43,3 +43,6 @@ project.inlang/project_id
 !drizzle/migrations/*.sql
 !drizzle/migrations/meta/*.json
 .env
+
+# Playwright MCP
+.playwright-mcp/

@@ -1,0 +1,18 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .outline { stroke: #3E2723; stroke-width: 6px; stroke-linecap: round; stroke-linejoin: round; }
+      .shine { fill: white; opacity: 0.5; }
+      .toy-outline { stroke: #3E2723; stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+  <circle cx="50" cy="50" r="40" fill="#A2DEFF" fill-opacity="0.3" class="outline"/>
+  
+  <g transform="translate(30, 30) scale(0.8)">
+      <circle cx="25" cy="35" r="15" fill="none" stroke="#FFC048" stroke-width="6"/>
+     <path d="M15 20 L 35 20 L 40 10 L 10 10 Z" fill="#e84393" class="toy-outline"/>
+     <path d="M15 20 L 25 30 L 35 20" fill="#e84393" class="toy-outline"/>
+  </g>
+
+  <ellipse cx="35" cy="35" rx="14" ry="8" transform="rotate(-45 35 35)" class="shine"/>
+</svg>

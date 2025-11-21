@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { MapPin, AlertCircle, Star } from 'lucide-svelte';
+	import { MapPin, AlertCircle, Star, CheckCircle2 } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import type { Machine } from '$lib/types';
 	import { formatPrice } from '$lib/mocks/services/payment';
@@ -50,15 +50,15 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-50 pb-20">
-	<NavigationHeader title="Available Machines" showBack={true} />
+<div class="min-h-screen bg-gray-100 pb-20 font-display">
+	<NavigationHeader title="Gashapon products" showBack={true} />
 
-	<div class="space-y-4 p-6" data-testid="machines-section">
+	<div class="space-y-4 p-4" data-testid="machines-section">
 		{#if data.machines.length === 0}
 			<!-- Empty State -->
-			<div class="rounded-xl bg-white p-12 text-center">
+			<div class="rounded-2xl bg-white p-12 text-center">
 				<AlertCircle class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-				<h3 class="mb-2 text-lg font-semibold text-gray-900">No Available Machines</h3>
+				<h3 class="mb-2 text-lg font-bold text-navy">No Available Machines</h3>
 				<p class="text-gray-600">
 					All machines are currently unavailable. Please check back later!
 				</p>
@@ -71,76 +71,50 @@
 					data-sveltekit-preload-data
 					data-testid="machine-card-{machine.id}"
 					data-machine-id={machine.id}
-					class="block overflow-hidden rounded-xl border-2 bg-white shadow-sm transition-shadow hover:shadow-md {isHighlighted ? 'border-purple-500 ring-2 ring-purple-200' : 'border-gray-200'}"
+					class="flex gap-4 overflow-hidden rounded-2xl bg-white p-3 shadow-sm transition-shadow hover:shadow-md {isHighlighted ? 'ring-2 ring-accent-green' : ''}"
 				>
-					{#if isHighlighted}
-						<div class="flex items-center gap-2 bg-purple-600 px-4 py-2 text-white">
-							<Star class="h-4 w-4" />
-							<span class="text-sm font-medium">Connected Machine</span>
-						</div>
-					{/if}
 					<!-- Machine Image -->
-					<div class="relative aspect-video bg-gray-200">
+					<div class="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50">
 						<img
 							src={machine.imageUrl}
 							alt={machine.name}
 							data-testid="machine-image"
-							class="h-full w-full object-cover"
+							class="h-full w-full object-contain p-2"
 						/>
-						<!-- Status Badge -->
-						<div class="absolute top-3 right-3">
-							<span
-								data-testid="machine-status"
-								class="rounded-full px-3 py-1 text-xs font-medium {getMachineStatusBadge(
-									machine.status
-								)}"
-							>
-								{getMachineStatusText(machine.status)}
-							</span>
-						</div>
+						{#if isHighlighted}
+							<div class="absolute top-1 left-1">
+								<Star class="h-4 w-4 fill-accent-gold text-accent-gold" />
+							</div>
+						{/if}
 					</div>
 
 					<!-- Machine Info -->
-					<div class="p-4">
-						<h3 class="mb-1 text-lg font-semibold text-gray-900" data-testid="machine-name">
-							{machine.name}
-						</h3>
-
-						<div class="mb-3 flex items-center text-sm text-gray-500">
-							<MapPin class="mr-1 h-4 w-4 flex-shrink-0" />
-							<span class="truncate">{machine.location}</span>
+					<div class="flex min-w-0 flex-1 flex-col justify-between py-1">
+						<div>
+							<div class="flex items-center justify-between gap-2">
+								<div class="flex items-center gap-2">
+									<span class="h-4 w-1 rounded-full bg-accent-green"></span>
+									<h3 class="text-sm font-bold text-navy" data-testid="machine-name">
+										{machine.name}
+									</h3>
+								</div>
+								{#if isHighlighted}
+									<div class="flex items-center gap-1 rounded-full bg-accent-green px-2 py-0.5">
+										<CheckCircle2 class="h-3 w-3 text-white" />
+										<span class="text-xs font-bold text-white">Connected</span>
+									</div>
+								{/if}
+							</div>
+							<p class="mt-0.5 text-xs text-gray-500">Gachapon Limited Edition</p>
 						</div>
 
-						<p class="mb-4 line-clamp-2 text-sm text-gray-600">
-							{machine.description}
+						<p class="text-lg font-bold text-navy" data-testid="machine-price">
+							{formatPrice(machine.pricePerPlay)}
 						</p>
 
-						<!-- Featured Prizes Preview -->
-						<div class="mb-4 flex items-center gap-2" data-testid="featured-prizes">
-							{#each machine.featuredPrizes.slice(0, 3) as prize (prize.id)}
-								<div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-									<img src={prize.imageUrl} alt={prize.name} class="h-full w-full object-cover" />
-								</div>
-							{/each}
-							{#if machine.featuredPrizes.length > 3}
-								<span class="text-xs text-gray-500">
-									+{machine.featuredPrizes.length - 3} more
-								</span>
-							{/if}
-						</div>
-
-						<!-- Price -->
-						<div class="flex items-center justify-between">
-							<div>
-								<p class="text-2xl font-bold text-purple-600" data-testid="machine-price">
-									{formatPrice(machine.pricePerPlay)}
-								</p>
-								<p class="text-xs text-gray-500">per play</p>
-							</div>
-
-							<div class="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white">
-								Play Now
-							</div>
+						<div class="flex items-center text-xs text-accent-green">
+							<MapPin class="mr-1 h-3 w-3 flex-shrink-0" />
+							<span class="truncate">{machine.location}</span>
 						</div>
 					</div>
 				</a>

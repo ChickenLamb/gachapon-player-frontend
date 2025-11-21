@@ -1,6 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getInventoryItemById } from '$lib/mocks/data/inventory';
+import { getMachineById } from '$lib/mocks/data/machines';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	// Require authentication
@@ -19,8 +20,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		throw error(403, 'Access denied');
 	}
 
+	// Get full machine details for additional info
+	const machine = getMachineById(item.machineId);
+
 	return {
 		user: locals.user,
-		item
+		item,
+		machine
 	};
 };

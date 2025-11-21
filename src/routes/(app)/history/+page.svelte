@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Package, Clock, Headphones } from 'lucide-svelte';
+	import { Package, Clock, Headphones, MapPin } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import ViewToggle from '$lib/components/ViewToggle.svelte';
+	import { formatPrice } from '$lib/mocks/services/payment';
 
 	let { data } = $props();
 
@@ -17,21 +18,17 @@
 			minute: '2-digit'
 		}).format(date);
 	}
-
-	function formatPrice(amount: number): string {
-		return `RM ${amount.toFixed(2)}`;
-	}
 </script>
 
-<div class="min-h-screen bg-gray-50 pb-20">
+<div class="min-h-screen bg-gray-100 pb-20 font-display">
 	<NavigationHeader title="History" showBack={true} />
 
 	<div class="space-y-4 p-4" data-testid="history-section">
 		<!-- Header with Stats and Support -->
-		<div class="flex items-center justify-between rounded-xl bg-white p-4">
+		<div class="flex items-center justify-between rounded-2xl bg-white p-4 shadow-sm">
 			<div>
-				<p class="text-2xl font-bold text-purple-600">{data.inventory.length}</p>
-				<p class="text-sm text-gray-600">Total Plays</p>
+				<p class="text-2xl font-bold text-navy">{data.inventory.length}</p>
+				<p class="text-sm text-gray-500">Total Plays</p>
 			</div>
 			<div class="flex items-center gap-2">
 				<a
@@ -54,36 +51,40 @@
 						<a
 							href="/history/{item.id}"
 							data-testid="history-item-{item.id}"
-							class="block overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md"
+							class="flex gap-4 overflow-hidden rounded-2xl bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
 						>
-							<div class="p-4">
-								<div class="flex items-start gap-3">
-									<!-- Prize Image -->
-									<div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-										<img
-											data-testid="prize-image"
-											src={item.prize.imageUrl}
-											alt={item.prize.name}
-											class="h-full w-full object-cover"
-										/>
-									</div>
+							<!-- Machine Image -->
+							<div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50">
+								<img
+									data-testid="machine-image"
+									src={item.machineImageUrl || '/machine.svg'}
+									alt={item.machineName}
+									class="h-full w-full object-contain p-2"
+								/>
+							</div>
 
-									<!-- Prize Info -->
-									<div class="min-w-0 flex-1">
-										<h3 class="mb-1 font-semibold text-gray-900" data-testid="prize-name">
-											{item.prize.name}
-										</h3>
-										<div class="flex items-center gap-1.5 text-sm text-gray-500">
-											<Clock class="h-3.5 w-3.5" />
-											<span>{formatDate(item.wonAt)}</span>
+							<!-- Machine Info -->
+							<div class="flex min-w-0 flex-1 flex-col justify-between py-1">
+								<div>
+									<h3 class="font-bold text-navy" data-testid="machine-name">
+										{item.machineName}
+									</h3>
+									{#if item.machine?.location}
+										<div class="mt-0.5 flex items-center gap-1 text-xs text-accent-green">
+											<MapPin class="h-3 w-3 flex-shrink-0" />
+											<span class="truncate">{item.machine.location}</span>
 										</div>
+									{/if}
+									<div class="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+										<Clock class="h-3 w-3" />
+										<span>{formatDate(item.wonAt)}</span>
 									</div>
-
-									<!-- Price Paid -->
-									<div class="text-right">
-										<p class="font-semibold text-gray-900">{formatPrice(item.prize.value || 5)}</p>
-										<p class="text-xs text-green-600">Dispensed</p>
-									</div>
+								</div>
+								<div class="flex items-center justify-between">
+									<p class="font-bold text-navy">{formatPrice(item.pricePerPlay)}</p>
+									<span class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green">
+										Dispensed
+									</span>
 								</div>
 							</div>
 						</a>
@@ -96,25 +97,25 @@
 						<a
 							href="/history/{item.id}"
 							data-testid="history-item-{item.id}"
-							class="block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+							class="block overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md"
 						>
-							<!-- Prize Image -->
-							<div class="aspect-square bg-gray-100">
+							<!-- Machine Image -->
+							<div class="aspect-square bg-gray-50 p-2">
 								<img
-									data-testid="prize-image"
-									src={item.prize.imageUrl}
-									alt={item.prize.name}
-									class="h-full w-full object-cover"
+									data-testid="machine-image"
+									src={item.machineImageUrl || '/machine.svg'}
+									alt={item.machineName}
+									class="h-full w-full object-contain"
 								/>
 							</div>
 
-							<!-- Prize Info -->
+							<!-- Machine Info -->
 							<div class="p-2">
 								<h3
-									class="mb-1 line-clamp-2 text-xs font-semibold text-gray-900"
-									data-testid="prize-name"
+									class="mb-1 line-clamp-2 text-xs font-bold text-navy"
+									data-testid="machine-name"
 								>
-									{item.prize.name}
+									{item.machineName}
 								</h3>
 								<p class="text-xs text-gray-500">
 									{formatDate(item.wonAt)}
@@ -126,10 +127,10 @@
 			{/if}
 		{:else}
 			<!-- Empty State -->
-			<div class="rounded-xl bg-white p-12 text-center" data-testid="empty-history-message">
+			<div class="rounded-2xl bg-white p-12 text-center shadow-sm" data-testid="empty-history-message">
 				<Package class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-				<h3 class="mb-2 text-lg font-semibold text-gray-900">No History Yet</h3>
-				<p class="text-gray-600">
+				<h3 class="mb-2 text-lg font-bold text-navy">No History Yet</h3>
+				<p class="text-gray-500">
 					Your play history will appear here after you make a purchase.
 				</p>
 			</div>
