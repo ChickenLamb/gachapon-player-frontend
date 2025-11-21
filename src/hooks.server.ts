@@ -5,7 +5,10 @@ import { createDB } from '$lib/server/db';
 import { USE_MOCK_AUTH, extractTokenFromUrl, createMockSession } from '$lib/server/auth-mock';
 
 const handleDatabase: Handle = async ({ event, resolve }) => {
-	event.locals.db = createDB(event.platform!.env.DB);
+	// Skip database initialization if platform bindings not available (Docker dev mode)
+	if (event.platform?.env?.DB) {
+		event.locals.db = createDB(event.platform.env.DB);
+	}
 	return resolve(event);
 };
 

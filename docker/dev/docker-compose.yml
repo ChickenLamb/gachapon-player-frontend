@@ -1,0 +1,125 @@
+# Docker Compose Development Environment for Gachapon Player Frontend
+# Features: Hot-reload with Docker Compose Watch, Vite HMR support
+# Usage: docker compose -f docker/dev/docker-compose.yml watch
+
+services:
+  # SvelteKit Frontend with Vite HMR
+  frontend:
+    build:
+      context: ../..
+      dockerfile: docker/dev/Dockerfile
+    container_name: gachapon-player-frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.gachapon-frontend.rule=Host(`gachapon-frontend.findhawker.food`)"
+      - "traefik.http.routers.gachapon-frontend.entrypoints=websecure"
+      - "traefik.http.routers.gachapon-frontend.tls.certresolver=cloudflare"
+      - "traefik.http.services.gachapon-frontend.loadbalancer.server.port=5173"
+    environment:
+      # Vite configuration
+      VITE_HOST: 0.0.0.0
+      VITE_PORT: 5173
+
+      # Application
+      NODE_ENV: development
+
+      # Public environment variables (available in browser)
+      PUBLIC_APP_NAME: Gachapon Player
+    # Ports exposed only within traefik-net (no external access)
+    expose:
+      - "5173"
+    volumes:
+      # Code volumes for hot-reload (Vite HMR)
+      - ../../src:/app/src:rw
+      - ../../static:/app/static:rw
+      - ../../scripts:/app/scripts:rw
+      - ../../drizzle:/app/drizzle:rw
+      - ../../project.inlang:/app/project.inlang:ro
+      # Config files (read-only) - use dev configs without cloudflare/workerd
+      - ./svelte.config.js:/app/svelte.config.js:ro
+      - ./vite.config.ts:/app/vite.config.ts:ro
+      - ../../tsconfig.json:/app/tsconfig.json:ro
+      - ../../wrangler.jsonc:/app/wrangler.jsonc:ro
+      - ../../eslint.config.js:/app/eslint.config.js:ro
+      # Exclude build artifacts and node_modules
+      - /app/node_modules
+      - /app/.svelte-kit
+      - /app/build
+      - /app/.wrangler
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "--header=Host: localhost", "http://127.0.0.1:5173"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    networks:
+      - traefik-net
+    restart: unless-stopped
+    develop:
+      watch:
+        # Watch source files (Vite HMR handles reload automatically)
+        - action: sync
+          path: ../../src
+          target: /app/src
+          ignore:
+            - "**/*.test.ts"
+            - "**/*.test.js"
+            - "**/__tests__/**"
+        # Watch static files
+        - action: sync
+          path: ../../static
+          target: /app/static
+        # Watch and rebuild on config changes
+        - action: sync+restart
+          path: ./svelte.config.js
+          target: /app/svelte.config.js
+        - action: sync+restart
+          path: ./vite.config.ts
+          target: /app/vite.config.ts
+        - action: sync+restart
+          path: ../../tsconfig.json
+          target: /app/tsconfig.json
+        # Rebuild on package.json changes
+        - action: rebuild
+          path: ../../package.json
+
+networks:
+  traefik-net:
+    external: true
+    name: traefik-net
+
+# Usage Instructions:
+# ===================
+#
+# 1. Ensure traefik-net network exists:
+#    docker network create traefik-net
+#
+# 2. Start services with watch mode:
+#    docker compose -f docker/dev/docker-compose.yml watch
+#
+# 3. Start services without watch:
+#    docker compose -f docker/dev/docker-compose.yml up
+#
+# 4. Stop services:
+#    docker compose -f docker/dev/docker-compose.yml down
+#
+# 5. Rebuild container:
+#    docker compose -f docker/dev/docker-compose.yml build --no-cache
+#
+# 6. View logs:
+#    docker compose -f docker/dev/docker-compose.yml logs -f frontend
+#
+# 7. Execute commands in container:
+#    docker compose -f docker/dev/docker-compose.yml exec frontend sh
+#
+# Service URLs (via Traefik):
+# ===========================
+# Frontend: https://gachapon-frontend.findhawker.food
+#
+# Local Development (without Traefik):
+# ====================================
+# If you want to access directly without Traefik, add ports mapping:
+#   ports:
+#     - "5173:5173"
+# Then access: http://localhost:5173
