@@ -2,6 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getAllMachines } from '$lib/mocks/data/machines';
 import { getActiveEvents } from '$lib/mocks/data/events';
+import { getInventoryForUser } from '$lib/mocks/data/inventory';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Require authentication
@@ -11,13 +12,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(302, '/');
 	}
 
-	// Load machines and events
+	// Load machines, events, and inventory
 	const machines = getAllMachines();
 	const activeEvents = getActiveEvents();
+	const inventory = getInventoryForUser(locals.user.id);
 
 	return {
 		user: locals.user,
 		machines,
-		activeEvents
+		activeEvents,
+		inventory
 	};
 };

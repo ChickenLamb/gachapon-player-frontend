@@ -1,17 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { MapPin, Sparkles } from 'lucide-svelte';
+	import { MapPin, Sparkles, QrCode } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import { formatPrice } from '$lib/mocks/services/payment';
 	import { getRarityColor, getRarityText } from '$lib/mocks/services/play';
 
 	let { data } = $props();
 
-	function handlePlayNow() {
-		if (data.machine.status !== 'AVAILABLE') {
-			return;
-		}
-		goto(`/machines/${data.machine.id}/payment`);
+	function goToDashboard() {
+		goto('/dashboard');
 	}
 </script>
 
@@ -98,19 +95,19 @@
 			<ol class="space-y-2 text-sm text-blue-800">
 				<li class="flex items-start">
 					<span class="mr-2 font-bold">1.</span>
-					<span>Tap "Play Now" and complete payment</span>
+					<span>Go to Dashboard and show your QR code</span>
 				</li>
 				<li class="flex items-start">
 					<span class="mr-2 font-bold">2.</span>
-					<span>Show the QR code at the machine</span>
+					<span>Let the machine scan your QR code</span>
 				</li>
 				<li class="flex items-start">
 					<span class="mr-2 font-bold">3.</span>
-					<span>Scan the QR code on the machine</span>
+					<span>Complete payment on your phone</span>
 				</li>
 				<li class="flex items-start">
 					<span class="mr-2 font-bold">4.</span>
-					<span>Collect your prize!</span>
+					<span>Turn the handle and collect your prize!</span>
 				</li>
 			</ol>
 		</div>
@@ -123,11 +120,12 @@
 		{#if data.machine.status === 'AVAILABLE'}
 			<button
 				type="button"
-				data-testid="play-now-button"
-				onclick={handlePlayNow}
-				class="w-full rounded-xl bg-purple-600 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-purple-700 active:bg-purple-800"
+				data-testid="scan-qr-button"
+				onclick={goToDashboard}
+				class="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-purple-700 active:bg-purple-800"
 			>
-				Play Now - {formatPrice(data.machine.pricePerPlay)}
+				<QrCode class="h-5 w-5" />
+				<span>Scan QR to Play - {formatPrice(data.machine.pricePerPlay)}</span>
 			</button>
 		{:else if data.machine.status === 'MAINTENANCE'}
 			<button

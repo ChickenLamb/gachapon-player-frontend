@@ -4,7 +4,6 @@
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import LoadingSpinner from '$lib/components/base/LoadingSpinner.svelte';
 	import { createPaymentPreview, createPayment, formatPrice } from '$lib/mocks/services/payment';
-	import { generateQRCode } from '$lib/mocks/services/qr';
 	import type { PaymentPreview } from '$lib/types';
 
 	let { data } = $props();
@@ -38,14 +37,11 @@
 			isProcessing = true;
 			error = null;
 
-			// 1. Create payment
-			const payment = await createPayment(data.user.id, data.machine.id, paymentPreview.total);
+			// 1. Create payment (machine receives via WS, unlocks dispenser)
+			await createPayment(data.user.id, data.machine.id, paymentPreview.total);
 
-			// 2. Generate QR code
-			const qrCode = await generateQRCode(data.user.id, data.machine.id, payment.id);
-
-			// 3. Navigate to QR display
-			goto(`/machines/${data.machine.id}/qr/${qrCode.id}`);
+			// 2. Redirect to dashboard with paid flag (shows spin reminder modal)
+			goto('/dashboard?paid=true');
 		} catch {
 			error = 'Payment failed. Please try again.';
 			isProcessing = false;

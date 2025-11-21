@@ -29,8 +29,8 @@
 		goto(`/machines/${data.machine.id}`);
 	}
 
-	function handleViewInventory() {
-		goto('/inventory');
+	function handleViewHistory() {
+		goto('/history');
 	}
 </script>
 
@@ -131,11 +131,11 @@
 			<div class="w-full max-w-sm space-y-3">
 				<button
 					type="button"
-					data-testid="view-inventory-button"
-					onclick={handleViewInventory}
+					data-testid="view-history-button"
+					onclick={handleViewHistory}
 					class="w-full rounded-xl bg-white py-4 font-semibold text-purple-600 shadow-lg transition-colors hover:bg-purple-50"
 				>
-					View in Inventory
+					View in History
 				</button>
 
 				<button

@@ -19,8 +19,8 @@
 			icon: Calendar
 		},
 		{
-			href: '/inventory',
-			label: 'Inventory',
+			href: '/history',
+			label: 'History',
 			icon: Package
 		}
 	];
