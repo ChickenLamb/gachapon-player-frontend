@@ -120,14 +120,14 @@
 		{/snippet}
 	</NavigationHeader>
 
-	<div class="space-y-4 px-4 py-4">
+	<div class="space-y-4 px-4 py-2">
 		{#if machine.scanned && connectedMachine}
 			<!-- ========== CONNECTED STATE ========== -->
 
 			<!-- Machine-Specific Events Carousel (above payment) -->
 			{#if connectedMachine.activeEvents && connectedMachine.activeEvents.length > 0}
 				<div class="relative -mx-4 overflow-x-auto px-4">
-					<div class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
+					<div class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto">
 						{#each connectedMachine.activeEvents as event (event.id)}
 							<button
 								type="button"
@@ -308,18 +308,18 @@
 			{/if}
 
 			<!-- QR Code Section -->
-			<div class="rounded-2xl bg-white p-6 shadow-sm">
-				<div class="text-center">
-					<h2 class="mb-2 text-lg font-bold text-navy">Connect with Gashapon</h2>
-					<p class="mb-4 text-sm text-gray-500">Show this to the machine to start playing</p>
+			<div class="rounded-2xl bg-white shadow-sm">
+				<div class="pb-1 text-center">
+					<h2 class="text-lg font-bold text-navy">Connect with Gashapon</h2>
+					<p class=" text-sm text-gray-500">Show this to the machine to start playing</p>
 
 					<div
-						class="mx-auto mb-4 inline-block rounded-2xl bg-gradient-to-b from-accent-green/10 to-accent-green/5 p-4"
+						class="mx-auto inline-block rounded-2xl bg-gradient-to-b from-accent-green/10 to-accent-green/5 p-2"
 						data-testid="user-qr-code"
 					>
 						<img src={getQRCodeUrl(data.user.id)} alt="Your QR Code" class="h-44 w-44" />
 					</div>
-					<p class="mb-4 font-mono text-sm text-navy">{data.user.id}</p>
+					<p class="mb-2 font-mono text-sm text-navy">{data.user.id}</p>
 
 					{#if machine.status === 'idle'}
 						<p class="text-sm text-gray-500">Waiting for machine scan...</p>

@@ -44,7 +44,7 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-100 pb-20 font-display">
+<div class="min-h-screen bg-gray-100 pb-4 font-display">
 	<NavigationHeader title="Gashapon products" showBack={true} />
 
 	<!-- Search Bar -->

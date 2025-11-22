@@ -18,19 +18,6 @@
 		}
 	}
 
-	function getEventColor(type: MerchantEvent['type']): string {
-		switch (type) {
-			case 'DISCOUNT':
-				return 'bg-green-50 border-green-200 text-green-800';
-			case 'FREE_PLAY':
-				return 'bg-purple-50 border-purple-200 text-purple-800';
-			case 'BONUS_PRIZE':
-				return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-			default:
-				return 'bg-gray-50 border-gray-200 text-gray-800';
-		}
-	}
-
 	function formatDate(date: Date): string {
 		return new Intl.DateTimeFormat('en-MY', {
 			month: 'short',
@@ -45,7 +32,7 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-100 pb-20 font-display">
+<div class="min-h-screen bg-gray-100 pb-4 font-display">
 	<NavigationHeader title="Events & Promotions" showBack={true} />
 
 	<div class="space-y-4 p-4">

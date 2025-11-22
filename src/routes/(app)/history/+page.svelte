@@ -20,7 +20,7 @@
 	}
 </script>
 
-<div class="min-h-screen bg-gray-100 pb-20 font-display">
+<div class="min-h-screen bg-gray-100 pb-4 font-display">
 	<NavigationHeader title="History" showBack={true} />
 
 	<div class="space-y-4 p-4" data-testid="history-section">
@@ -82,7 +82,9 @@
 								</div>
 								<div class="flex items-center justify-between">
 									<p class="font-bold text-navy">{formatPrice(item.pricePerPlay)}</p>
-									<span class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green">
+									<span
+										class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green"
+									>
 										Dispensed
 									</span>
 								</div>
@@ -127,12 +129,13 @@
 			{/if}
 		{:else}
 			<!-- Empty State -->
-			<div class="rounded-2xl bg-white p-12 text-center shadow-sm" data-testid="empty-history-message">
+			<div
+				class="rounded-2xl bg-white p-12 text-center shadow-sm"
+				data-testid="empty-history-message"
+			>
 				<Package class="mx-auto mb-4 h-16 w-16 text-gray-300" />
 				<h3 class="mb-2 text-lg font-bold text-navy">No History Yet</h3>
-				<p class="text-gray-500">
-					Your play history will appear here after you make a purchase.
-				</p>
+				<p class="text-gray-500">Your play history will appear here after you make a purchase.</p>
 			</div>
 		{/if}
 	</div>
