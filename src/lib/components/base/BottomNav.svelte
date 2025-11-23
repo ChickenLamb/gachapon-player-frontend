@@ -26,6 +26,10 @@
 	];
 
 	function isActive(href: string): boolean {
+		// Support page should highlight History nav item
+		if (href === '/history' && $page.url.pathname === '/support') {
+			return true;
+		}
 		return $page.url.pathname === href || $page.url.pathname.startsWith(href + '/');
 	}
 </script>
@@ -38,17 +42,27 @@
 		{#each navItems as item (item.href)}
 			{@const Icon = item.icon}
 			{@const navLabel = item.label.toLowerCase()}
+			{@const active = isActive(item.href)}
 			<a
 				href={item.href}
 				data-testid="bottom-nav-{navLabel}"
-				class="flex flex-1 flex-col items-center gap-1 py-3 transition-colors {isActive(item.href)
-					? 'text-purple-600'
-					: 'text-gray-600 hover:text-gray-900'}"
-				class:active={isActive(item.href)}
+				class="flex flex-1 flex-col items-center gap-1 py-3 transition-all"
+				class:active
 			>
-				<Icon class="h-6 w-6" />
-				<span class="text-xs font-medium">{item.label}</span>
+				<Icon class="h-6 w-6 {active ? 'text-navy' : 'text-gray-500'}" />
+				<span class="text-md font-bold {active ? 'nav-gradient' : 'text-gray-500'}">
+					{item.label}
+				</span>
 			</a>
 		{/each}
 	</div>
 </nav>
+
+<style>
+	.nav-gradient {
+		background: linear-gradient(135deg, var(--color-navy-light) 0%, var(--color-navy) 100%);
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+</style>

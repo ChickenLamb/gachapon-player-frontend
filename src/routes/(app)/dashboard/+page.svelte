@@ -3,8 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { CheckCircle2, AlertCircle, Loader2, CreditCard, X, Ticket, Clock } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
-	import SectionHeader from '$lib/components/SectionHeader.svelte';
 	import DiscountBadge from '$lib/components/DiscountBadge.svelte';
+	import EventsCarousel from '$lib/components/EventsCarousel.svelte';
 	import { getMachineContext } from '$lib/stores/machine.svelte';
 	import { formatPrice } from '$lib/mocks/services/payment';
 	import type { MerchantEvent } from '$lib/types';
@@ -125,32 +125,11 @@
 			<!-- ========== CONNECTED STATE ========== -->
 
 			<!-- Machine-Specific Events Carousel (above payment) -->
-			{#if connectedMachine.activeEvents && connectedMachine.activeEvents.length > 0}
-				<div class="relative -mx-4 overflow-x-auto px-4">
-					<div class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto">
-						{#each connectedMachine.activeEvents as event (event.id)}
-							<button
-								type="button"
-								onclick={() => openEventModal(event)}
-								class="w-[calc(100vw-3rem)] flex-shrink-0 snap-center overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-left text-white shadow-lg transition-transform hover:scale-[1.02]"
-							>
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3">
-										<Ticket class="h-6 w-6" />
-										<div>
-											<p class="font-semibold">{event.name}</p>
-											<p class="text-xs text-amber-100">Valid for this machine only</p>
-										</div>
-									</div>
-									{#if getEventDiscountPercentage(event) > 0}
-										<DiscountBadge percentage={getEventDiscountPercentage(event)} size="sm" />
-									{/if}
-								</div>
-							</button>
-						{/each}
-					</div>
-				</div>
-			{/if}
+			<EventsCarousel
+				events={connectedMachine.activeEvents || []}
+				subtitle="Valid for this machine only"
+				onEventClick={openEventModal}
+			/>
 
 			<!-- Machine Prizes Section (replaces QR when connected) -->
 			<div class="rounded-xl bg-white p-4 shadow-sm">
@@ -208,13 +187,13 @@
 
 				<!-- Payment Section (after milestone) -->
 				<div
-					class="mb-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 p-5 text-white shadow-lg"
+					class="mb-4 rounded-xl bg-gradient-to-br from-navy-light to-navy p-5 text-white shadow-lg"
 				>
 					<div class="mb-3 flex items-center justify-between">
 						<div class="flex items-center gap-3">
 							<CreditCard class="h-5 w-5" />
 							<div>
-								<p class="text-sm text-purple-200">Price per spin</p>
+								<p class="text-sm">Price per spin</p>
 								<p class="text-xl font-bold">{formatPrice(connectedMachine.pricePerPlay)}</p>
 							</div>
 						</div>
@@ -222,16 +201,23 @@
 
 					<a
 						href="/machines/{connectedMachine.id}/payment"
-						class="block w-full rounded-xl bg-white py-3 text-center font-semibold text-purple-600 shadow-md transition-colors hover:bg-purple-50"
+						class="block w-full rounded-xl bg-white py-3 text-center font-semibold text-navy shadow-md transition-colors hover:bg-purple-50"
 					>
 						Pay & Spin Now
 					</a>
 
-					<p class="mt-2 text-center text-xs text-purple-200">1 payment = 1 spin</p>
+					<p class="mt-2 text-center text-xs">1 payment = 1 spin</p>
 				</div>
+			</div>
 
-				<!-- Machine Prizes Grid -->
-				<p class="mb-3 text-sm font-medium text-gray-700">Available Prizes</p>
+			<!-- Machine Prizes Grid -->
+			<div class="rounded-2xl bg-white p-4 shadow-sm">
+				<div class="mb-3 flex items-center justify-between">
+					<h3 class="flex items-center gap-2 font-bold text-navy">
+						<span class="h-5 w-1 rounded-full bg-accent-green"></span>
+						Available Prizes
+					</h3>
+				</div>
 				<div class="grid grid-cols-4 gap-2">
 					{#each machinePrizes().slice(0, 8) as prize (prize.id)}
 						<div class="aspect-square overflow-hidden rounded-lg bg-gray-100">
@@ -243,14 +229,20 @@
 
 			<!-- Recent History Section -->
 			{#if data.inventory && data.inventory.length > 0}
-				<div>
-					<SectionHeader title="Recent Purchases" viewAllHref="/history" />
+				<div class="rounded-2xl bg-white p-4 shadow-sm">
+					<div class="mb-3 flex items-center justify-between">
+						<h3 class="flex items-center gap-2 font-bold text-navy">
+							<span class="h-5 w-1 rounded-full bg-accent-green"></span>
+							Recent Purchases
+						</h3>
+						<a href="/history" class="text-sm font-medium text-accent-green">view all</a>
+					</div>
 
 					<div class="space-y-3">
 						{#each data.inventory.slice(0, 3) as item (item.id)}
 							<a
 								href="/history/{item.id}"
-								class="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
+								class="flex items-center gap-3 rounded-2xl bg-gray-50 p-3 transition-colors hover:bg-gray-100"
 							>
 								<div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50 p-1">
 									<img
@@ -280,32 +272,7 @@
 			<!-- ========== NOT CONNECTED STATE ========== -->
 
 			<!-- Global Events Carousel (above QR) -->
-			{#if data.activeEvents.length > 0}
-				<div class="relative -mx-4 overflow-x-auto px-4">
-					<div class="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
-						{#each data.activeEvents as event (event.id)}
-							<button
-								type="button"
-								onclick={() => openEventModal(event)}
-								class="w-[calc(100vw-3rem)] flex-shrink-0 snap-center overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-left text-white shadow-lg transition-transform hover:scale-[1.02]"
-							>
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-3">
-										<Ticket class="h-6 w-6" />
-										<div>
-											<p class="font-semibold">{event.name}</p>
-											<p class="text-xs text-amber-100">Available at participating machines</p>
-										</div>
-									</div>
-									{#if getEventDiscountPercentage(event) > 0}
-										<DiscountBadge percentage={getEventDiscountPercentage(event)} size="sm" />
-									{/if}
-								</div>
-							</button>
-						{/each}
-					</div>
-				</div>
-			{/if}
+			<EventsCarousel events={data.activeEvents} onEventClick={openEventModal} />
 
 			<!-- QR Code Section -->
 			<div class="rounded-2xl bg-white shadow-sm">
@@ -319,12 +286,12 @@
 					>
 						<img src={getQRCodeUrl(data.user.id)} alt="Your QR Code" class="h-44 w-44" />
 					</div>
-					<p class="mb-2 font-mono text-sm text-navy">{data.user.id}</p>
+					<p class="mb-2 text-sm font-bold text-navy">{data.user.id}</p>
 
 					{#if machine.status === 'idle'}
 						<p class="text-sm text-gray-500">Waiting for machine scan...</p>
 					{:else if machine.status === 'connecting'}
-						<div class="flex items-center justify-center gap-2 text-purple-600">
+						<div class="flex items-center justify-center gap-2 text-navy">
 							<Loader2 class="h-4 w-4 animate-spin" />
 							<span class="text-sm">Connecting to machine...</span>
 						</div>
@@ -348,7 +315,7 @@
 				</h3>
 				<div class="flex items-center gap-4">
 					<img src="/machine.svg" alt="Gashapon machine" class="h-32 w-auto" />
-					<p class="text-sm text-gray-600">
+					<p class="text-sm font-semibold text-navy">
 						Hold your QR code near the <span class="font-semibold text-accent-green"
 							>Gachapon machine's scan area</span
 						> to connect and earn extra rewards.
@@ -358,7 +325,7 @@
 
 			<!-- Featured Prizes Section -->
 			{#if featuredPrizes().length > 0}
-				<div>
+				<div class="rounded-2xl bg-white p-4 shadow-sm">
 					<div class="mb-3 flex items-center justify-between">
 						<h3 class="flex items-center gap-2 font-bold text-navy">
 							<span class="h-5 w-1 rounded-full bg-accent-green"></span>
@@ -371,9 +338,9 @@
 						{#each featuredPrizes() as prize, index (prize.id + '-' + index)}
 							<a
 								href="/machines/{prize.machineId}"
-								class="block overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-md"
+								class="block overflow-hidden rounded-2xl bg-gray-50 transition-colors hover:bg-gray-100"
 							>
-								<div class="aspect-square bg-gray-50 p-2">
+								<div class="aspect-square p-2">
 									<img src={prize.imageUrl} alt={prize.name} class="h-full w-full object-contain" />
 								</div>
 							</a>

@@ -50,7 +50,7 @@
 		<button
 			type="button"
 			onclick={() => (showTcModal = true)}
-			class="text-sm text-gray-500 underline hover:text-purple-600"
+			class="text-sm text-gray-500 underline hover:text-navy"
 		>
 			Terms & Conditions (v{TC_VERSION})
 		</button>

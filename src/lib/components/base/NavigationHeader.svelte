@@ -31,10 +31,10 @@
 					class="mr-2 -ml-2 rounded-full p-2 transition-colors hover:bg-gray-100 active:bg-gray-200"
 					aria-label="Go back"
 				>
-					<ChevronLeft class="h-6 w-6 text-gray-700" />
+					<ChevronLeft class="h-6 w-6 text-accent-green" />
 				</button>
 			{/if}
-			<h1 class="truncate text-lg font-semibold text-gray-900" data-testid="page-title">
+			<h1 class="truncate text-lg font-bold text-navy" data-testid="page-title">
 				{title}
 			</h1>
 		</div>
