@@ -1,12 +1,15 @@
-# Better Auth - Authentication System Guide
+# Authentication Documentation
 
-Complete guide to the Better Auth authentication system in this SvelteKit + Cloudflare Workers + D1 project.
+> ⚠️ **Current Status**: This project uses **Custom Mock Authentication** (see below).
+> Better Auth is installed but **NOT active**. The Better Auth documentation below is preserved for future integration reference.
 
 ---
 
 ## 📚 Table of Contents
 
-- [Overview](#overview)
+- [Current Implementation: Custom Mock Auth](#current-implementation-custom-mock-auth)
+- [Future Integration: Better Auth](#future-integration-better-auth)
+  - [Overview](#overview)
 - [Architecture](#architecture)
 - [Complete Request Flow](#complete-request-flow)
 - [Database Schema](#database-schema)
@@ -19,9 +22,195 @@ Complete guide to the Better Auth authentication system in this SvelteKit + Clou
 
 ---
 
-## Overview
+## Current Implementation: Custom Mock Auth
 
-This project uses **Better Auth** - a modern, framework-agnostic authentication library for TypeScript:
+### Overview
+
+Custom JWT token-based authentication system designed for Unity WebView integration.
+
+**Implementation Files:**
+
+- `src/hooks.server.ts` (line 55): `USE_MOCK_AUTH = true`
+- `src/lib/server/auth-mock.ts`: Token validation and mock users
+
+**Why Mock Auth?**
+
+- Unity app integration requires simple token-based flow
+- No real backend yet - all data is mocked
+- Faster development iteration
+- Production auth can be added later
+
+### Architecture
+
+```
+Unity App → URL with token → SvelteKit validates → Session cookie → Mock user data
+```
+
+**Flow:**
+
+1. **Unity sends token**: URL parameter `?token=user1_token`
+2. **hooks.server.ts extracts token**: From URL or existing cookie
+3. **Validates against mockTokens**: Check if token exists in auth-mock.ts
+4. **Creates session**: Store in cookie with 30-day expiration
+5. **Populates event.locals.user**: Mock user data available throughout app
+
+### Mock Data
+
+#### Available Tokens
+
+```typescript
+// From src/lib/server/auth-mock.ts
+export const mockTokens = {
+	user1_token: 'user1',
+	user2_token: 'user2'
+};
+```
+
+#### Mock Users
+
+```typescript
+// From src/lib/server/auth-mock.ts
+export const mockUsers = {
+	user1: {
+		id: 'user1',
+		name: 'Test User 1',
+		email: 'user1@example.com'
+		// ... full mock profile with inventory, gacha history, etc.
+	},
+	user2: {
+		id: 'user2',
+		name: 'Test User 2',
+		email: 'user2@example.com'
+		// ... full mock profile
+	}
+};
+```
+
+### Usage Examples
+
+#### Testing Authentication
+
+```bash
+# Login as user1
+open "https://gachapon-frontend.findhawker.food?token=user1_token"
+
+# Login as user2
+open "https://gachapon-frontend.findhawker.food?token=user2_token"
+```
+
+#### Protected Route
+
+```typescript
+// src/routes/dashboard/+page.server.ts
+import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ locals }) => {
+	// Check if user is authenticated
+	if (!locals.user) {
+		throw redirect(302, '/?token=user1_token');
+	}
+
+	// User is authenticated - return data
+	return {
+		user: locals.user
+		// Mock data from src/lib/mocks/data/
+	};
+};
+```
+
+#### API Endpoint with Auth
+
+```typescript
+// src/routes/api/data/+server.ts
+import { json } from '@sveltejs/kit';
+import { mockDataService } from '$lib/mocks/services/data';
+
+export async function GET({ locals }) {
+	// Check authentication
+	if (!locals.user) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	// Get mock data for authenticated user
+	const data = mockDataService.getData(locals.user.id);
+	return json(data);
+}
+```
+
+### Implementation Details
+
+#### hooks.server.ts (Authentication Flow)
+
+```typescript
+// src/hooks.server.ts (excerpt)
+import { createMockSession } from '$lib/server/auth-mock';
+
+export const USE_MOCK_AUTH = true; // Line 55
+
+const handleAuth: Handle = async ({ event, resolve }) => {
+	if (USE_MOCK_AUTH) {
+		// Extract token from URL or cookie
+		const tokenFromUrl = event.url.searchParams.get('token');
+		const tokenFromCookie = event.cookies.get('auth_token');
+		const token = tokenFromUrl || tokenFromCookie;
+
+		if (token) {
+			const session = createMockSession(token);
+			if (session) {
+				event.locals.user = session.user;
+				event.cookies.set('auth_token', token, {
+					path: '/',
+					httpOnly: true,
+					secure: true,
+					sameSite: 'strict',
+					maxAge: 60 * 60 * 24 * 30 // 30 days
+				});
+			}
+		} else {
+			event.locals.user = null;
+		}
+	}
+	// Real auth code commented out below...
+
+	return resolve(event);
+};
+```
+
+#### auth-mock.ts (Token Validation)
+
+```typescript
+// src/lib/server/auth-mock.ts (excerpt)
+export function createMockSession(token: string) {
+	const userId = mockTokens[token];
+	if (!userId) return null;
+
+	return {
+		user: mockUsers[userId],
+		sessionId: `session_${userId}_${Date.now()}`
+	};
+}
+```
+
+### Switching to Real Auth
+
+When ready to implement real authentication:
+
+1. **Set flag**: Change `USE_MOCK_AUTH = false` in hooks.server.ts (line 55)
+2. **Follow Better Auth guide**: See sections below for complete Better Auth setup
+3. **Update Unity integration**: Send real JWT tokens instead of mock tokens
+4. **Migrate mock data**: Replace `src/lib/mocks/` with real database queries
+
+---
+
+## Future Integration: Better Auth
+
+> The sections below document Better Auth for future reference.
+> Better Auth is installed but currently **disabled** (`USE_MOCK_AUTH = true`).
+
+### Overview
+
+This project has **Better Auth** installed - a modern, framework-agnostic authentication library for TypeScript:
 
 - ✅ Email & Password authentication built-in
 - ✅ 30-day sessions with automatic renewal (sliding window)

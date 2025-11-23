@@ -38,8 +38,22 @@ export async function createPaymentPreview(
 }
 
 /**
+ * In-memory payment store for tracking payment status across polling requests
+ * In production, Friend B maintains this in database
+ */
+const PAYMENT_STORE = new Map<
+	string,
+	{
+		payment: Payment;
+		completionTime: number;
+		qrCodeId?: string;
+	}
+>();
+
+/**
  * Mock payment creation
- * Simulates payment processing
+ * Simulates async payment processing (as per PRD flow)
+ * Returns PROCESSING status immediately, completion happens asynchronously
  */
 export async function createPayment(
 	userId: string,
@@ -51,7 +65,7 @@ export async function createPayment(
 
 	const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-	// Simulate payment processing
+	// Create payment with PROCESSING status
 	const payment: Payment = {
 		id: paymentId,
 		machineId,
@@ -61,27 +75,89 @@ export async function createPayment(
 		createdAt: new Date()
 	};
 
-	// Simulate async payment completion
+	// Store payment for status polling
+	const completionTime = Date.now() + 2000; // Complete after 2 seconds
+	PAYMENT_STORE.set(paymentId, {
+		payment,
+		completionTime
+	});
+
+	// Simulate async payment completion (Friend B's payment gateway integration)
 	setTimeout(() => {
-		payment.status = 'SUCCESS' as PaymentStatus;
-		payment.completedAt = new Date();
-		payment.transactionId = `txn_${paymentId}`;
+		const stored = PAYMENT_STORE.get(paymentId);
+		if (stored) {
+			stored.payment.status = 'SUCCESS' as PaymentStatus;
+			stored.payment.completedAt = new Date();
+			stored.payment.transactionId = `txn_${paymentId}`;
+
+			// Generate QR code ID on successful payment
+			stored.qrCodeId = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		}
 	}, 2000);
 
 	return payment;
 }
 
 /**
- * Mock payment status check
+ * Mock payment status polling
+ * GET /api/v1/payments/:id
+ *
+ * Frontend polls this every 2 seconds to check payment status
+ * Returns qrCodeId when payment succeeds
  */
-export async function getPaymentStatus(_paymentId: string): Promise<PaymentStatus> {
+export async function getPaymentStatus(
+	paymentId: string
+): Promise<{ payment: Payment; qrCodeId?: string }> {
 	// Simulate network delay
 	await new Promise((resolve) => setTimeout(resolve, 300));
 
-	// Mock: payments complete after 2 seconds
-	// In real app, poll backend for status
-	// Note: paymentId would be used in real implementation
-	return 'SUCCESS' as PaymentStatus;
+	const stored = PAYMENT_STORE.get(paymentId);
+	if (!stored) {
+		throw new Error(`Payment ${paymentId} not found`);
+	}
+
+	// Check if payment has completed
+	const now = Date.now();
+	if (now >= stored.completionTime && stored.payment.status === 'PROCESSING') {
+		// Update to success if completion time reached
+		stored.payment.status = 'SUCCESS';
+		stored.payment.completedAt = new Date();
+		stored.payment.transactionId = `txn_${paymentId}`;
+		stored.qrCodeId = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+	}
+
+	return {
+		payment: { ...stored.payment },
+		qrCodeId: stored.qrCodeId
+	};
+}
+
+/**
+ * Poll payment status with timeout
+ * Utility function for frontend to use
+ * Polls every 2 seconds for up to 30 seconds (PRD requirement)
+ */
+export async function pollPaymentStatus(
+	paymentId: string,
+	maxAttempts: number = 15, // 15 attempts × 2 seconds = 30 seconds
+	intervalMs: number = 2000
+): Promise<{ payment: Payment; qrCodeId?: string }> {
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		const result = await getPaymentStatus(paymentId);
+
+		// If payment succeeded or failed, return immediately
+		if (result.payment.status === 'SUCCESS' || result.payment.status === 'FAILED') {
+			return result;
+		}
+
+		// Wait before next poll (except on last attempt)
+		if (attempt < maxAttempts - 1) {
+			await new Promise((resolve) => setTimeout(resolve, intervalMs));
+		}
+	}
+
+	// Timeout reached
+	throw new Error('Payment status polling timeout after 30 seconds');
 }
 
 /**

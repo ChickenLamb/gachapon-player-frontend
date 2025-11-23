@@ -2,9 +2,9 @@
 
 > **Project Workflow Preferences**:
 >
-> - ✅ Use **Hybrid Workflow** for all schema changes (Drizzle generate + Wrangler apply)
-> - ✅ Use **Drizzle Studio** for inspecting local database (`pnpm run db:studio`)
-> - ✅ Use **Production Data Import** workflow for debugging customer issues
+> - ✅ Use **Docker Compose Watch** for development (`docker compose watch`)
+> - ✅ Use **Mock Data Services** - no active database queries
+> - ✅ Use **Custom Mock Auth** for Unity WebView integration
 
 ---
 
@@ -14,10 +14,10 @@
 
 Central index for all project documentation. Start here to find:
 
-- **PRD** (Product Requirements) - Both condensed (implementation-focused) and original (comprehensive, bilingual)
-- **API Documentation** - Complete backend integration reference
-- **Quick Reference** - Decision trees for which doc to use when
-- **Documentation maintenance** - Guidelines for keeping docs in sync
+- **Quick Start** - Docker development workflow
+- **Core Documentation** - CLAUDE.md, DATAFLOW.md, AUTH.md
+- **Type Organization** - src/lib/types/README.md
+- **Technology Stack** - SvelteKit 5, Cloudflare Workers, Mock Services
 
 **[DATAFLOW.md](./DATAFLOW.md)** - Complete SvelteKit Data Flow Reference
 
@@ -61,7 +61,7 @@ When you need deep technical reference, these URLs contain complete, up-to-date 
   - Includes documentation index with use cases for each section
   - Specifies autofixer workflow and playground link generation
 - **Drizzle ORM**: https://orm.drizzle.team/llms-full.txt
-- **Better Auth**: https://www.better-auth.com/llms.txt
+- **Better Auth**: https://www.better-auth.com/llms.txt (for future reference)
 - **Vite**: https://vite.dev/llms-full.txt
 
 ### Cloudflare Platform
@@ -74,40 +74,11 @@ When you need deep technical reference, these URLs contain complete, up-to-date 
 
 **Data Storage:**
 
-- **D1** (SQLite Database - we use this!): https://developers.cloudflare.com/d1/llms-full.txt
+- **D1** (SQLite Database): https://developers.cloudflare.com/d1/llms-full.txt
 - **KV** (Key-Value): https://developers.cloudflare.com/kv/llms-full.txt
 - **R2** (Object Storage): https://developers.cloudflare.com/r2/llms-full.txt
 - **Durable Objects** (Stateful): https://developers.cloudflare.com/durable-objects/llms-full.txt
 - **Vectorize** (Vector DB): https://developers.cloudflare.com/vectorize/llms-full.txt
-
-**Async & Messaging:**
-
-- **Queues**: https://developers.cloudflare.com/queues/llms-full.txt
-- **Pub/Sub**: https://developers.cloudflare.com/pub-sub/llms-full.txt
-- **Workflows** (Orchestration): https://developers.cloudflare.com/workflows/llms-full.txt
-
-**Database Acceleration:**
-
-- **Hyperdrive**: https://developers.cloudflare.com/hyperdrive/llms-full.txt
-
-**AI & ML:**
-
-- **Workers AI**: https://developers.cloudflare.com/workers-ai/llms-full.txt
-- **AI Gateway**: https://developers.cloudflare.com/ai-gateway/llms-full.txt
-
-**Media & Assets:**
-
-- **Images** (Optimization): https://developers.cloudflare.com/images/llms-full.txt
-- **Stream** (Video): https://developers.cloudflare.com/stream/llms-full.txt
-- **Browser Rendering**: https://developers.cloudflare.com/browser-rendering/llms-full.txt
-
-**Advanced Features:**
-
-- **Realtime**: https://developers.cloudflare.com/realtime/llms-full.txt
-- **Pipelines**: https://developers.cloudflare.com/pipelines/llms-full.txt
-- **Cloudflare for Platforms**: https://developers.cloudflare.com/cloudflare-for-platforms/llms-full.txt
-- **Zaraz** (Third-party tools): https://developers.cloudflare.com/zaraz/llms-full.txt
-- **Developer Spotlight**: https://developers.cloudflare.com/developer-spotlight/llms-full.txt
 
 > 💡 **Usage**: Fetch these URLs when you need authoritative answers about API signatures, configuration options, or framework conventions. The docs are always up-to-date and maintained by the official teams.
 
@@ -116,29 +87,265 @@ When you need deep technical reference, these URLs contain complete, up-to-date 
 ## Tech Stack Overview
 
 ```
-SvelteKit 5 + Cloudflare Workers + D1 (SQLite) + Drizzle ORM
+SvelteKit 5 + Cloudflare Workers + Mock Services
 ```
 
 **Architecture**:
 
 - Frontend & Backend: SvelteKit (SSR)
 - Runtime: Cloudflare Workers (serverless)
-- Database: Cloudflare D1 (serverless SQLite)
-- ORM: Drizzle ORM (type-safe queries)
-- Auth: Better Auth (modern auth framework)
+- Data: Mock services (src/lib/mocks/data/)
+- Database: D1 configured but not actively queried
+- Auth: Custom mock auth for Unity WebView
 - i18n: Paraglide
 
 ---
 
-## Database Access Pattern
+## Docker Development with Cloudflare Workers
 
-### Runtime (Your App)
+### Quick Start
+
+```bash
+# Navigate to Docker development directory
+cd docker/dev
+
+# Start development environment (with hot reload)
+docker compose watch
+
+# Container includes:
+# - Vite dev server with HMR
+# - Cloudflare Workers emulation (workerd)
+# - Persistent D1 database state
+# - Access via Traefik: https://gachapon-frontend.findhawker.food
+```
+
+### Stop Development Environment
+
+```bash
+# Stop containers
+docker compose down
+
+# Stop and remove volumes (reset database)
+docker compose down -v
+```
+
+### Architecture
+
+- **Base Image**: `node:22-slim` (Debian for glibc compatibility with workerd)
+- **Runtime**: Cloudflare Workers (full production parity)
+- **Adapter**: `@sveltejs/adapter-cloudflare`
+- **Hot Reload**: Vite HMR for instant code updates
+- **Config Restart**: Docker Compose Watch for config file changes
+- **Database**: Local D1 in `.wrangler/state/` (persisted in named volume)
+
+### File Watching Strategy
+
+**Vite HMR** (via bind mounts):
+
+- `src/` - Instant code updates
+- `static/` - Asset changes
+
+**Docker Compose Watch** (sync + restart):
+
+- `svelte.config.js` - Adapter configuration
+- `vite.config.ts` - Build tool configuration
+- `tsconfig.json` - TypeScript configuration
+
+**Docker Rebuild** (on changes):
+
+- `package.json` - Dependency changes require rebuild
+
+### Why Debian Instead of Alpine?
+
+The Cloudflare Workers runtime binary (`workerd`) requires **glibc**, which is only available in Debian-based images. Alpine Linux uses **musl libc** and is incompatible.
+
+- ✅ `node:22-slim` (Debian + glibc) - Works with workerd
+- ❌ `node:22-alpine` (Alpine + musl) - `workerd` binary fails with ENOENT
+
+### Configuration Files
+
+```
+docker/dev/
+├── Dockerfile              # Debian-based with workerd support
+├── docker-compose.yml      # Traefik integration, named volumes
+├── svelte.config.js        # Cloudflare adapter for development
+└── vite.config.ts          # Vite + Wrangler integration
+```
+
+### Persistent Storage
+
+Named volume `gachapon-wrangler-state` persists:
+
+- Local D1 database state
+- Miniflare cache
+- Wrangler session data
+
+**Reset database**:
+
+```bash
+docker compose down -v  # Remove volumes
+docker compose watch     # Recreate fresh database
+```
+
+### Accessing the Application
+
+- **Via Traefik** (requires Traefik running): https://gachapon-frontend.findhawker.food
+- **Direct access** (uncomment ports in docker-compose.yml): http://localhost:5173
+
+### Logs and Debugging
+
+```bash
+# View logs
+docker compose -f docker/dev/docker-compose.yml logs -f
+
+# Execute commands in container
+docker compose -f docker/dev/docker-compose.yml exec gachapon-player-frontend sh
+
+# Check container status
+docker compose -f docker/dev/docker-compose.yml ps
+```
+
+---
+
+## Authentication System
+
+### Current Implementation: Custom Mock Auth
+
+The project uses a custom JWT token-based authentication system designed for Unity WebView integration.
+
+**Status**: `USE_MOCK_AUTH = true` in hooks.server.ts
+
+**Why Mock Auth?**
+
+- Unity app integration requires simple token-based flow
+- No real backend yet - all data is mocked
+- Faster development iteration
+- Production auth can be added later
+
+#### Implementation Files
+
+- **src/hooks.server.ts** (line 55): `USE_MOCK_AUTH = true`
+- **src/lib/server/auth-mock.ts**: Token validation and mock users
+
+#### Token Flow
+
+```
+Unity App → URL with token → SvelteKit validates → Session cookie → Mock user data
+```
+
+1. **Unity sends token**: `https://app.com/?token=user1_token`
+2. **hooks.server.ts extracts token**: From URL or existing cookie
+3. **Validates against mockTokens**: Check if token exists in auth-mock.ts
+4. **Creates session**: Store in cookie with 30-day expiration
+5. **Populates event.locals.user**: Mock user data available throughout app
+
+#### Available Test Users
+
+```typescript
+// Available tokens (from src/lib/server/auth-mock.ts)
+'user1_token' → user1
+'user2_token' → user2
+```
+
+#### Testing Authentication
+
+```bash
+# Login as user1
+open "https://gachapon-frontend.findhawker.food?token=user1_token"
+
+# Login as user2
+open "https://gachapon-frontend.findhawker.food?token=user2_token"
+```
+
+#### Protected Route Example
+
+```typescript
+// src/routes/dashboard/+page.server.ts
+import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ({ locals }) => {
+	if (!locals.user) {
+		throw redirect(302, '/?token=user1_token');
+	}
+
+	return {
+		user: locals.user
+		// Mock data from src/lib/mocks/data/
+	};
+};
+```
+
+### Future Integration: Better Auth
+
+Better Auth is installed but **NOT active** (`USE_MOCK_AUTH = true`).
+
+**When ready to switch**:
+
+1. Set `USE_MOCK_AUTH = false` in hooks.server.ts
+2. Follow [AUTH.md](./AUTH.md) for Better Auth configuration
+3. Update Unity integration to send real JWT tokens
+4. Migrate mock data to real database queries
+
+See [AUTH.md](./AUTH.md) for complete Better Auth documentation.
+
+---
+
+## Request Flow
+
+```
+User Request (Unity WebView)
+    ↓
+Cloudflare Workers
+    ↓
+SvelteKit Request Handler
+    ↓
+1. handleDatabase()
+   → Creates DB from platform.env.DB
+   → Stores in event.locals.db
+    ↓
+2. handleParaglide()
+   → i18n processing
+    ↓
+3. handleAuth()
+   → Validates token from URL or cookie (MOCK AUTH)
+   → Stores user in event.locals.user
+   → Stores session in cookie
+    ↓
+4. Route Handler (+server.ts / +page.server.ts)
+   → Access user via event.locals.user
+   → Access mock data from src/lib/mocks/data/
+    ↓
+Response to User
+```
+
+---
+
+## D1 Database (Future Integration Reference)
+
+### Currently Not Used
+
+This project uses **mock data services**. D1 database is configured but **not actively queried**.
+
+All data comes from:
+
+- `src/lib/mocks/data/` - Mock data files
+- `src/lib/mocks/services/` - Mock service functions
+
+### Basic Configuration
+
+- **Database Name**: `gachapon-player-frontend-db`
+- **Binding**: `DB` (in wrangler.jsonc)
+- **ORM**: Drizzle ORM (configured but not used)
+- **Schema**: `src/lib/server/db/schema.ts`
+
+### Database Access Pattern
 
 ```typescript
 // In +server.ts, hooks.server.ts, or +page.server.ts
 const db = event.locals.db; // Database instance from platform binding
 
-// Type-safe queries
+// Type-safe queries (when you start using D1)
 const users = await db.select().from(userTable);
 ```
 
@@ -149,7 +356,7 @@ const users = await db.select().from(userTable);
 3. Available in all server code
 4. No API keys needed (uses Wrangler binding)
 
-### Database Schema Location
+### Schema Location
 
 ```
 src/lib/server/db/
@@ -157,283 +364,52 @@ src/lib/server/db/
 └── index.ts           # DB factory function
 ```
 
-### Better Auth Schema Management
-
-**Schema Structure**:
-
-```
-src/lib/server/db/schema.ts  # Main schema (Better Auth tables + custom tables)
-auth-schema.ts               # Generated by Better Auth CLI (reference/backup)
-auth.config.ts               # Better Auth CLI configuration
-```
-
-**Updating Better Auth Schema**:
-
-When Better Auth releases updates or you need to regenerate schema:
+### Quick Commands (For Future Use)
 
 ```bash
-# 1. Regenerate Better Auth schema
-pnpm run auth:generate
-# Creates/updates: auth-schema.ts
-
-# 2. Review changes
-cat auth-schema.ts
-# Check what changed
-
-# 3. Manually merge if needed
-# Update the Better Auth tables section in src/lib/server/db/schema.ts
-# Look for the "BETTER AUTH TABLES" comment block
-
-# 4. Generate Drizzle migration
+# Generate migration from schema changes
 pnpm run db:generate
 
-# 5. Test locally
+# Apply migration locally (Docker environment)
 npx wrangler d1 migrations apply gachapon-player-frontend-db --local
 
-# 6. Deploy to production
-npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
-```
-
-**Important Notes**:
-
-- ⚠️ Better Auth CLI generates to `auth-schema.ts`, **never directly modifies** `schema.ts`
-- ✅ Better Auth tables are clearly marked in `schema.ts` with comment blocks
-- ✅ You control what goes into your main schema - manually copy/merge as needed
-- ✅ Keep `auth-schema.ts` in git as reference for future updates
-- ✅ Better Auth tables in `schema.ts` are dated (see comments) so you know when to check for updates
-
----
-
-## 🏆 Default Workflow: HYBRID APPROACH
-
-**Use Drizzle Kit for generation + Wrangler for applying**
-
-This is the recommended approach for all database schema changes.
-
-### Step-by-Step Workflow
-
-#### 1. Edit Schema (TypeScript-first)
-
-```typescript
-// src/lib/server/db/schema.ts
-export const user = sqliteTable('user', {
-	id: text('id').primaryKey(),
-	email: text('email').notNull() // ← Add new column
-});
-```
-
-#### 2. Generate Migration (Auto-SQL)
-
-```bash
-pnpm run db:generate
-# ✅ Creates: drizzle/migrations/0001_xxx.sql with enforced naming
-# ❌ NO .env needed!
-```
-
-**What happens**:
-
-1. Wrapper script runs `drizzle-kit generate`
-2. Drizzle Kit reads `schema.ts`, compares with previous migrations, auto-generates SQL
-3. Script validates migration name follows context boundary convention
-4. If name doesn't match pattern, prompts you for meaningful name
-5. Pattern: `<context>_<action>_<detail>` (e.g., `auth_add_oauth_providers`)
-
-**Context Boundary Naming Enforcement**:
-
-- ✅ Ensures all migrations have meaningful names
-- ✅ Pattern: `<context>_<action>_<detail>`
-- ✅ Examples: `auth_add_oauth_providers`, `user_update_profile_fields`, `payment_create_stripe_integration`
-- ❌ Rejects random names like `gray_stephen_strange` or `flying_monkey`
-- 🔄 Prompts for correction if pattern not followed
-- ⚠️ Maximum 3 attempts before requiring manual rename
-
-#### 3. Review Generated SQL (Optional but Recommended)
-
-```bash
-cat drizzle/migrations/0001_xxx.sql
-# Review the SQL, make adjustments if needed
-```
-
-#### 4. Test Locally First
-
-```bash
-npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-pnpm run dev
-# Test your changes thoroughly
-```
-
-#### 5. Deploy to Production
-
-```bash
-npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
-pnpm run deploy
-```
-
-### Why This Approach?
-
-✅ **Auto-generates SQL** (don't write manually)
-✅ **Simple auth** (no .env for generation)
-✅ **Local testing** (test before production)
-✅ **Migration history** (version control friendly)
-✅ **Production-safe** (explicit local → remote flow)
-✅ **Best of both worlds** (Drizzle + Wrangler)
-
----
-
-## Alternative Workflows (When Needed)
-
-### Quick Prototyping (Dev Only)
-
-```bash
-# Edit schema.ts, then:
-pnpm run db:push  # Requires .env, applies directly
-
-# ⚠️ Use only for: rapid prototyping, local experiments
-# ❌ Don't use for: production, team projects
-```
-
-### Manual SQL Control
-
-```bash
-# Create empty migration
-npx wrangler d1 migrations create gachapon-player-frontend-db "description"
-
-# Write SQL manually
-vim drizzle/migrations/0001_xxx.sql
-
-# Apply
-npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
-```
-
----
-
-## Database Commands Reference
-
-### Daily Development
-
-```bash
-# Start dev server
-pnpm run dev                    # Local D1 at .wrangler/state/
-
-# Better Auth schema generation
-pnpm run auth:generate          # Generate Better Auth schema to auth-schema.ts
-
-# Generate migration
-pnpm run db:generate            # NO .env needed
-
-# Apply locally
-npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-
-# Apply to production
+# Apply migration to production
 npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
 
-# Deploy app
-pnpm run deploy
-```
-
-### Database Management
-
-```bash
-# List databases
-npx wrangler d1 list
-
-# Get info
-npx wrangler d1 info gachapon-player-frontend-db
-
-# Execute SQL
+# Execute SQL locally
 npx wrangler d1 execute gachapon-player-frontend-db --command "SELECT * FROM user" --local
+
+# Execute SQL in production
 npx wrangler d1 execute gachapon-player-frontend-db --command "SELECT * FROM user" --remote
 
-# Export backup
+# Export production backup
 npx wrangler d1 export gachapon-player-frontend-db --output backup.sql --remote
 ```
 
 ### Drizzle Studio (Local Database Inspection)
 
-**Primary use**: Inspecting local miniflare D1 database during development
+When you start using D1, you can inspect the local database:
 
 ```bash
-# ❌ NO API credentials needed for local inspection!
-
-# 1. Make sure dev server created the database
-pnpm run dev  # Run once to create .wrangler/state/... database
+# 1. Make sure dev environment created the database
+docker compose watch  # Creates .wrangler/state/... database
 # Stop with Ctrl+C
 
 # 2. Open Drizzle Studio (auto-detects local database)
-pnpm run db:studio              # Opens GUI at http://localhost:4983
+pnpm run db:studio    # Opens GUI at http://localhost:4983
 ```
 
-**How it works**:
+**No API credentials needed** for local inspection! The script automatically finds and connects to your local D1 database.
 
-- 🤖 **Automatic Database Detection**: `scripts/db-studio-autodetect.mjs` finds the database file automatically
-- ✅ **Validation**: Tests connection with `wrangler d1 execute gachapon-player-frontend-db --local --command "SELECT 1"`
-- 📝 **Config Update**: Auto-updates `drizzle.config.local.ts` with correct path
-- 🚀 **Launch**: Starts Drizzle Studio pointing to detected database
-- NO manual path configuration needed!
-- NO API credentials needed
+### When You Need D1
 
-**Optional: Inspect remote production database**:
+See [Cloudflare D1 Documentation](https://developers.cloudflare.com/d1/llms-full.txt) for:
 
-```bash
-# Requires .env with API credentials (see .env.example)
-pnpm run db:studio:remote
-```
-
-**Setup .env** (only if you need remote operations):
-
-```bash
-# Copy example
-cp .env.example .env
-
-# Edit and add your values:
-# - CLOUDFLARE_ACCOUNT_ID: Get from `npx wrangler whoami`
-# - CLOUDFLARE_DATABASE_ID: Already in wrangler.jsonc
-# - CLOUDFLARE_D1_TOKEN: Create at https://dash.cloudflare.com/profile/api-tokens
-```
-
-**Use case**: Browse tables, view data, run queries in GUI during local development
-
----
-
-## Key Concepts
-
-### Drizzle ORM vs Drizzle Kit
-
-| Aspect              | Drizzle ORM               | Drizzle Kit                |
-| ------------------- | ------------------------- | -------------------------- |
-| **Type**            | Runtime library           | CLI tool                   |
-| **Used in**         | Your app code             | Terminal commands          |
-| **Needs API keys?** | ❌ No                     | ✅ Yes (for some commands) |
-| **Purpose**         | Query database            | Manage schema & migrations |
-| **Example**         | `db.select().from(users)` | `pnpm run db:generate`     |
-
-### Which Commands Need .env?
-
-```
-❌ NO .env needed:
-  - pnpm run db:generate          (reads local files only)
-  - npx wrangler d1 ...            (uses wrangler auth)
-
-✅ YES .env needed:
-  - pnpm run db:push               (connects to D1)
-  - pnpm run db:migrate            (connects to D1)
-  - pnpm run db:studio             (connects to D1)
-```
-
-### Local vs Remote Database
-
-```
-LOCAL (.wrangler/state/):
-  - For development testing
-  - Created by: pnpm run dev
-  - Apply: wrangler d1 migrations apply gachapon-player-frontend-db --local
-
-REMOTE (Cloudflare):
-  - Production database
-  - Created by: wrangler d1 create gachapon-player-frontend-db
-  - Apply: wrangler d1 migrations apply gachapon-player-frontend-db --remote
-```
+- Production database setup and deployment
+- Migration workflow best practices
+- Drizzle ORM integration patterns
+- Query optimization and performance
+- Backup and restore strategies
 
 ---
 
@@ -450,241 +426,35 @@ src/
 │   ├── types/                  # Business logic types (⚠️ NOT app.d.ts types!)
 │   │   ├── index.ts            # Domain models, API types, utilities
 │   │   └── README.md           # Type organization guide
+│   ├── mocks/                  # Mock data and services
+│   │   ├── data/               # Mock data files
+│   │   └── services/           # Mock service functions
 │   └── server/                 # Server-only code (⚠️ never exposed to client)
 │       ├── db/
 │       │   ├── schema.ts       # Database schema (TypeScript)
 │       │   └── index.ts        # DB factory (createDB)
-│       └── auth.ts             # Authentication logic
+│       └── auth-mock.ts        # Mock authentication logic
 ├── hooks.server.ts             # Request middleware
 │   ├── handleDatabase          # Initialize DB from platform.env.DB
 │   ├── handleParaglide         # i18n middleware
-│   └── handleAuth              # Session validation
+│   └── handleAuth              # Session validation (MOCK)
 └── app.d.ts                    # SvelteKit App namespace types ONLY
 
+docker/dev/                     # Docker development environment
+├── Dockerfile                  # Debian-based with workerd support
+├── docker-compose.yml          # Traefik integration, named volumes
+├── svelte.config.js            # Cloudflare adapter config
+└── vite.config.ts              # Vite + Wrangler integration
+
 drizzle/
-└── migrations/                 # SQL migration files (git tracked)
-    ├── 0001_initial.sql
-    └── meta/                   # Migration metadata
+└── migrations/                 # SQL migration files (git tracked, for future use)
 
 scripts/                        # Automation scripts (Node.js)
 └── db-studio-autodetect.mjs   # Auto-detect local D1 for Drizzle Studio
 
 wrangler.jsonc                  # Cloudflare Workers config
-drizzle.config.generate.ts      # Migration generation (no .env needed)
-drizzle.config.remote.ts        # Remote D1 operations (requires .env)
-drizzle.config.local.ts         # Local D1 inspection (auto-generated)
+drizzle.config.*.ts             # Drizzle ORM configurations
 ```
-
-### Script Naming Convention
-
-**Context Boundary Naming**: `<context>-<action>-<detail>.mjs`
-
-This naming convention helps maintain clear boundaries and makes it easy to understand what each script does at a glance.
-
-**Pattern Breakdown**:
-
-- `<context>`: What domain/area this script operates in (e.g., `db`, `deploy`, `test`)
-- `<action>`: What the script does (e.g., `studio`, `migrate`, `backup`)
-- `<detail>`: Specific behavior or variant (e.g., `autodetect`, `remote`, `local`)
-
-**Examples**:
-
-```
-✅ db-studio-autodetect.mjs    # Database + Studio + Auto-detection
-✅ db-backup-remote.mjs         # Database + Backup + Remote server
-✅ deploy-preview-test.mjs      # Deploy + Preview + Test environment
-✅ test-e2e-parallel.mjs        # Test + E2E + Parallel execution
-```
-
-**Benefits**:
-
-- **Context Clarity**: Immediately understand what area of the system is affected
-- **Action Clarity**: Know what operation will be performed
-- **Variant Clarity**: Understand specific behavior or configuration
-- **Easy Searching**: `ls scripts/db-*` shows all database-related scripts
-- **Maintenance**: Clear boundaries make it easy to locate and update scripts
-
-**Bad Examples**:
-
-```
-❌ studio.mjs                   # Too vague - studio for what?
-❌ autoDetect.mjs               # camelCase inconsistent, unclear context
-❌ db_studio.mjs                # Snake_case not preferred for filenames
-❌ database-drizzle-studio-automatic-detection.mjs  # Too verbose
-```
-
----
-
-## Drizzle Configuration Files
-
-The project uses **three separate config files** for different purposes:
-
-### 1. drizzle.config.generate.ts (Migration Generation)
-
-**Purpose**: Generate SQL migrations from TypeScript schema
-**Credentials**: ❌ NO .env needed
-**Connection**: ❌ NO database connection
-
-```bash
-pnpm run db:generate
-```
-
-**What it does**:
-
-1. Reads `src/lib/server/db/schema.ts` (TypeScript definitions)
-2. Compares with previous migrations
-3. Generates new SQL migration files
-4. Writes to `drizzle/migrations/*.sql`
-
-**Config contains**: Only `schema`, `out`, `dialect`
-
----
-
-### 2. drizzle.config.remote.ts (Remote Operations)
-
-**Purpose**: Connect to remote Cloudflare D1 database
-**Credentials**: ✅ YES - requires .env with API credentials
-**Connection**: ✅ YES - connects to Cloudflare D1
-
-```bash
-pnpm run db:push           # Push schema to remote
-pnpm run db:migrate        # Apply migrations to remote
-pnpm run db:studio:remote  # Inspect production database
-```
-
-**Config contains**: `schema`, `out`, `dialect`, `driver`, `dbCredentials`
-
----
-
-### 3. drizzle.config.local.ts (Local Inspection)
-
-**Purpose**: Inspect local miniflare D1 database
-**Credentials**: ❌ NO .env needed
-**Connection**: ✅ YES - points to local SQLite file
-**Auto-Generated**: Updated by `scripts/db-studio-autodetect.mjs`
-
-```bash
-pnpm run db:studio  # Inspect local database
-```
-
-**Config contains**: `schema`, `dialect`, `dbCredentials` (file: URL)
-
----
-
-### Config Selection Matrix
-
-| Command            | Config Used   | Needs .env? | Connects to DB? |
-| ------------------ | ------------- | ----------- | --------------- |
-| `db:generate`      | `generate.ts` | ❌ No       | ❌ No           |
-| `db:push`          | `remote.ts`   | ✅ Yes      | ✅ Remote       |
-| `db:migrate`       | `remote.ts`   | ✅ Yes      | ✅ Remote       |
-| `db:studio:remote` | `remote.ts`   | ✅ Yes      | ✅ Remote       |
-| `db:studio`        | `local.ts`    | ❌ No       | ✅ Local        |
-
----
-
-## Request Flow
-
-```
-User Request
-    ↓
-Cloudflare Workers
-    ↓
-SvelteKit Request Handler
-    ↓
-1. handleDatabase()
-   → Creates DB from platform.env.DB
-   → Stores in event.locals.db
-    ↓
-2. handleParaglide()
-   → i18n processing
-    ↓
-3. handleAuth()
-   → Validates session using event.locals.db
-   → Stores user in event.locals.user
-    ↓
-4. Route Handler (+server.ts / +page.server.ts)
-   → Access DB via event.locals.db
-   → Access user via event.locals.user
-    ↓
-Response to User
-```
-
----
-
-## ⚠️ Critical Concept: Migration Files = Source of Truth
-
-### Understanding Database vs Migration Files
-
-```
-Migration files control databases, NOT the other way around!
-
-drizzle/migrations/0001_xxx.sql (SOURCE OF TRUTH)
-            │
-            ├──→ wrangler apply --local  → Local DB (.wrangler/)
-            └──→ wrangler apply --remote → Production DB (Cloudflare)
-```
-
-**Key Point**: Local and production databases are **completely independent**!
-
-### What Happens If You Manually Alter Local Database?
-
-**Question**: "If I manually edit the local SQLite file, will it affect production?"
-
-**Answer**: ❌ **NO!** Manual changes are **completely ignored**.
-
-**Why?**
-
-```bash
-# You manually edit local database
-sqlite3 .wrangler/state/.../miniflare-*.sqlite
-> ALTER TABLE user ADD COLUMN hacked TEXT;
-
-# Then deploy
-npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
-
-# What happens?
-# 1. Wrangler reads: drizzle/migrations/*.sql files
-# 2. Checks: Which migrations already applied to production?
-# 3. Applies: Only NEW migration files
-# 4. Result: Your manual change to local DB is IGNORED!
-```
-
-**Wrangler ONLY reads**:
-
-- Migration SQL files in `drizzle/migrations/`
-- `d1_migrations` table (tracks which migrations were applied)
-
-**Wrangler does NOT**:
-
-- ❌ Read local database structure
-- ❌ Compare database schemas
-- ❌ Sync local to production
-- ❌ Detect manual changes
-
-### The ONLY Way to Change Production
-
-```bash
-# ✅ CORRECT: Create migration file
-1. Edit schema.ts
-2. pnpm run db:generate              # Creates migration file
-3. npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
-
-# ❌ WRONG: Manual database edits
-sqlite3 .wrangler/state/.../miniflare-*.sqlite
-# These changes only affect local testing, never production!
-```
-
-### If Local and Production Get Out of Sync
-
-```bash
-# Reset local database (easiest)
-rm -rf .wrangler/state/v3/d1/
-npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-# Recreates local DB from migration files
-```
-
-**Remember**: You can always recreate local database from migration files!
 
 ---
 
@@ -707,187 +477,114 @@ export async function load({ locals }) {
 // - src/lib/server/*
 ```
 
-### Database Instance
+### Mock Data Pattern
 
 ```typescript
-// ✅ Good: Use event.locals.db
-const db = event.locals.db;
+// ✅ Good: Use mock services
+import { mockUserService } from '$lib/mocks/services/user';
 
-// ❌ Bad: Don't try to import db directly
-// import { db } from '$lib/server/db';  // This won't work!
+export async function load({ locals }) {
+	const userData = mockUserService.getUserProfile(locals.user.id);
+	return { userData };
+}
+
+// ❌ Bad: Don't query database directly yet
+// Database is configured but not actively used
 ```
-
-### Migration Best Practices
-
-1. **Always generate migrations** when schema changes
-
-   ```bash
-   pnpm run db:generate
-   ```
-
-2. **Test locally first** before production
-
-   ```bash
-   npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-   pnpm run dev  # Test thoroughly
-   ```
-
-3. **Commit migration files** to git
-
-   ```bash
-   git add drizzle/migrations/
-   git commit -m "Add email column to user table"
-   ```
-
-4. **Apply to production** after testing
-   ```bash
-   npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
-   pnpm run deploy
-   ```
 
 ---
 
 ## Common Tasks
 
-### Adding a New Table
+### Adding a New Feature with Mock Data
 
-1. Add to schema.ts:
+1. **Define types** in `src/lib/types/index.ts`
+2. **Add mock data** to `src/lib/mocks/data/`
+3. **Create mock service** in `src/lib/mocks/services/`
+4. **Build route** with server load function
+5. **Test** with mock auth tokens
 
-```typescript
-export const posts = sqliteTable('posts', {
-	id: text('id').primaryKey(),
-	title: text('title').notNull(),
-	content: text('content'),
-	userId: text('user_id').references(() => user.id)
-});
-```
-
-2. Generate & apply:
+### Testing with Different Users
 
 ```bash
-pnpm run db:generate
-npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-# Test, then:
-npx wrangler d1 migrations apply gachapon-player-frontend-db --remote
+# User 1
+open "https://gachapon-frontend.findhawker.food?token=user1_token"
+
+# User 2
+open "https://gachapon-frontend.findhawker.food?token=user2_token"
 ```
 
-### Adding Auth to Route
+### Adding Protected Route
 
 ```typescript
-// src/routes/dashboard/+page.server.ts
+// src/routes/protected/+page.server.ts
 import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 
-export async function load({ locals }) {
+export const load: PageServerLoad = async ({ locals }) => {
+	// Check authentication
 	if (!locals.user) {
-		throw redirect(302, '/login');
+		throw redirect(302, '/?token=user1_token');
 	}
 
-	// User is authenticated
-	const userData = await locals.db.select().from(userTable).where(eq(userTable.id, locals.user.id));
-
-	return { userData };
-}
+	// User is authenticated - return data
+	return {
+		user: locals.user
+	};
+};
 ```
 
 ### Creating API Endpoint
 
 ```typescript
-// src/routes/api/users/+server.ts
+// src/routes/api/data/+server.ts
 import { json } from '@sveltejs/kit';
-import { userTable } from '$lib/server/db/schema';
+import { mockDataService } from '$lib/mocks/services/data';
 
 export async function GET({ locals }) {
-	const users = await locals.db.select().from(userTable);
-	return json(users);
+	// Optional: Check authentication
+	if (!locals.user) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
+	// Get mock data
+	const data = mockDataService.getData(locals.user.id);
+	return json(data);
 }
-
-export async function POST({ locals, request }) {
-	const data = await request.json();
-	await locals.db.insert(userTable).values(data);
-	return json({ success: true });
-}
-```
-
----
-
-## Debugging with Production Data
-
-### When Customer Reports a Bug
-
-Need to reproduce with real production data? Here's the flow:
-
-```bash
-# 1. Export production database
-npx wrangler d1 export gachapon-player-frontend-db --remote --output=./database.sql
-
-# 2. Reset local database
-rm -rf .wrangler/state/v3/d1/
-
-# 3. Re-apply migrations (recreate schema)
-npx wrangler d1 migrations apply gachapon-player-frontend-db --local
-
-# 4. Import only data (skip CREATE TABLE statements)
-grep "^INSERT INTO" database.sql > data-only.sql
-npx wrangler d1 execute gachapon-player-frontend-db --local --file=./data-only.sql
-
-# 5. Debug with production data
-pnpm run dev
-
-# 6. Clean up sensitive data
-rm database.sql data-only.sql
-```
-
-**Important**:
-
-- ❌ You do NOT need to modify `drizzle.config.remote.ts`
-- ✅ Just use Wrangler commands
-- ⚠️ Don't commit production data to git (`echo "*.sql" >> .gitignore`)
-
-**Quick shortcut** (if you don't care about migration tracking):
-
-```bash
-rm -rf .wrangler/state/v3/d1/
-npx wrangler d1 execute gachapon-player-frontend-db --local --file=./database.sql
-pnpm run dev
 ```
 
 ---
 
 ## Troubleshooting
 
+### "workerd ENOENT" Error
+
+**Cause**: Using Alpine Linux base image (musl libc incompatible with workerd)
+**Solution**: Use `node:22-slim` (Debian with glibc) in Dockerfile
+
+### Docker Compose Watch Not Updating
+
+**Issue**: Changes not reflected
+**Solutions**:
+
+- Check if file is in bind mount (src/, static/) or watch section (config files)
+- For package.json changes: rebuild with `docker compose build`
+- For src/ changes: Vite HMR should update instantly
+- For config changes: Docker Watch should restart container
+
 ### "DB is not defined"
 
 **Cause**: Trying to use database at module level
-**Solution**: Always access via `event.locals.db` in request context
+**Solution**: Always access via `event.locals.db` in request context (though currently using mock data)
 
-### "Cannot find module '$lib/server/db'"
+### Cannot Access Application
 
-**Cause**: Trying to import server code in client
-**Solution**: Server code (`src/lib/server/*`) is only for server-side
+**Issue**: Can't reach https://gachapon-frontend.findhawker.food
+**Solutions**:
 
-### "Migration already applied"
-
-**Cause**: Migration file already executed
-**Solution**: Check migration history with `npx wrangler d1 migrations list gachapon-player-frontend-db`
-
-### "Local D1 database not found" error with db:studio
-
-**Cause**: Miniflare hasn't created the database yet
-**Solution**:
-
-1. Run `pnpm run dev` or `pnpm run preview` first
-2. The dev/preview server creates the database in `.wrangler/state/`
-3. Stop the server with Ctrl+C
-4. Run `pnpm run db:studio` again
-
-### "Database exists but is not accessible" error
-
-**Cause**: Wrangler configuration mismatch
-**Solution**:
-
-1. Check `wrangler.jsonc` has correct `d1_databases` configuration
-2. Ensure `database_name` is "gachapon-player-frontend-db"
-3. Verify `binding` is "DB"
+- Check Traefik is running on traefik-net network
+- Check container is healthy: `docker compose ps`
+- Try direct access: uncomment ports in docker-compose.yml, use http://localhost:5173
 
 ---
 
@@ -1005,13 +702,6 @@ export interface User {
 	role: 'admin' | 'user';
 }
 
-export interface Post {
-	id: string;
-	title: string;
-	content: string;
-	authorId: string;
-}
-
 export interface ApiResponse<T = unknown> {
 	success: boolean;
 	data?: T;
@@ -1030,163 +720,49 @@ export type LoadingState = 'idle' | 'loading' | 'success' | 'error';
 - ✅ Enums and constants
 - ✅ Type guards and validators
 
-### Usage Patterns
-
-**In Server Functions**:
-
-```typescript
-// +page.server.ts
-import type { PageServerLoad } from './$types';
-import type { User, Post } from '$lib/types';
-
-export const load: PageServerLoad = async ({ locals }) => {
-	// locals.user is typed via App.Locals in app.d.ts
-	const user: User | null = locals.user;
-
-	// Import business types from $lib/types
-	const posts: Post[] = await locals.db.select().from(postsTable);
-
-	return {
-		user,
-		posts
-	};
-};
-```
-
-**In Components**:
-
-```svelte
-<script lang="ts">
-	import type { User, Post, LoadingState } from '$lib/types';
-	import type { PageProps } from './$types';
-
-	let { data }: { data: PageProps } = $props();
-	let loadingState: LoadingState = $state('idle');
-</script>
-```
-
-**In API Endpoints**:
-
-```typescript
-// +server.ts
-import type { RequestHandler } from './$types';
-import type { ApiResponse, User } from '$lib/types';
-
-export const GET: RequestHandler = async ({ locals }) => {
-	const response: ApiResponse<User> = {
-		success: true,
-		data: locals.user
-	};
-
-	return json(response);
-};
-```
-
-### Type Organization Best Practices
-
-1. **Types-First Development**: Define types before implementation (see DATAFLOW.md)
-2. **Explicit Imports**: Use `import type` for type-only imports
-3. **Domain Separation**: Organize types by domain as app grows
-4. **Documentation**: Add JSDoc comments for complex types
-5. **Type Safety**: Leverage TypeScript inference, avoid `any`
-
-### Organizing Types by Domain
-
-As your application grows, organize `$lib/types/` by domain:
-
-```
-src/lib/types/
-├── index.ts              # Re-export all types
-├── auth.ts               # Authentication types
-├── user.ts               # User domain types
-├── post.ts               # Post domain types
-├── api.ts                # API request/response types
-└── common.ts             # Shared utility types
-```
-
-Then re-export from `index.ts`:
-
-```typescript
-// src/lib/types/index.ts
-export * from './auth';
-export * from './user';
-export * from './post';
-export * from './api';
-export * from './common';
-```
-
-### Type Flow in SvelteKit
-
-```mermaid
-graph TB
-    A[app.d.ts<br/>App namespace] --> B[hooks.server.ts<br/>Populate event.locals]
-    B --> C[+page.server.ts<br/>Load function]
-    C --> D[+page.svelte<br/>Component]
-
-    E[$lib/types<br/>Business types] --> C
-    E --> D
-    E --> F[+server.ts<br/>API endpoint]
-
-    style A fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style E fill:#4dabf7,stroke:#1971c2,color:#000
-    style B fill:#ffd43b,stroke:#fab005,color:#000
-    style C fill:#ffd43b,stroke:#fab005,color:#000
-    style D fill:#51cf66,stroke:#2f9e44,color:#000
-```
-
-**Key Points**:
-
-- 🔴 **app.d.ts** → Types for SvelteKit framework integration
-- 🔵 **$lib/types** → Types for business logic
-- 🟡 **Hooks & Load** → Use both app.d.ts and $lib/types
-- 🟢 **Components** → Primarily use $lib/types
-
-For visual data flow understanding with types, see **[DATAFLOW.md](./DATAFLOW.md)**.
-
 For detailed type organization guide, see **[src/lib/types/README.md](./src/lib/types/README.md)**.
+For visual data flow understanding with types, see **[DATAFLOW.md](./DATAFLOW.md)**.
 
 ---
 
 ## When Creating New Features
 
 1. ✅ **Define types first** ($lib/types/index.ts)
-2. ✅ **Define schema** (schema.ts)
-3. ✅ **Generate migration** (db:generate)
-4. ✅ **Test locally** (apply --local)
-5. ✅ **Write business logic** (auth.ts, +server.ts)
-6. ✅ **Test thoroughly** (pnpm run dev)
-7. ✅ **Deploy** (apply --remote, pnpm run deploy)
+2. ✅ **Add mock data** (src/lib/mocks/data/)
+3. ✅ **Create mock service** (src/lib/mocks/services/)
+4. ✅ **Write route logic** (+server.ts, +page.server.ts)
+5. ✅ **Test with mock auth** (use ?token=user1_token)
+6. ✅ **Test thoroughly** (docker compose watch)
 
 ---
 
 ## Summary
 
-**Default workflow**: Hybrid approach (Drizzle generate + Wrangler apply)
-
-**Why**: Best balance of speed, safety, and convenience
+**Current workflow**: Docker development with mock services
 
 **Key tools**:
 
-- `pnpm run db:generate` - Auto-generate SQL from schema
-- `npx wrangler d1 migrations apply` - Apply migrations safely
-- `event.locals.db` - Access database in server code
+- `docker compose watch` - Development environment with hot reload
+- Mock auth - Simple token-based authentication
+- Mock services - All data from src/lib/mocks/
 
 **Remember**:
 
-- Database access is server-only
-- Always test locally before production
-- Commit migration files to git
-- Use `event.locals.db`, not direct imports
+- Database configured but NOT actively used
+- All data from mock services
+- Auth is mock-based for Unity WebView
+- Docker provides production parity (Cloudflare Workers)
+- Always test in Docker environment
 
 ---
 
 ## Additional Resources
 
-- Drizzle ORM Docs: https://orm.drizzle.team
-- Cloudflare D1 Docs: https://developers.cloudflare.com/d1
 - SvelteKit Docs: https://kit.svelte.dev
-- Wrangler CLI: https://developers.cloudflare.com/workers/wrangler
+- Cloudflare Workers: https://developers.cloudflare.com/workers
+- Docker Compose: https://docs.docker.com/compose/
+- Traefik: https://doc.traefik.io/traefik/
 
 ---
 
-_This project follows the hybrid workflow for database migrations. Always generate with Drizzle Kit and apply with Wrangler CLI._
+_This project uses Docker Compose for development with full Cloudflare Workers emulation and mock data services._

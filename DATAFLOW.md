@@ -546,7 +546,7 @@ graph TD
 
 ## Practical Examples
 
-### Example 1: Authentication Flow
+### Example 1: Mock Authentication Flow
 
 ```typescript
 // ✅ STEP 1: Define types (app.d.ts)
@@ -556,6 +556,7 @@ declare global {
 			user: {
 				id: string;
 				email: string;
+				name: string;
 				role: 'admin' | 'user';
 			} | null;
 			sessionId?: string;
@@ -572,96 +573,121 @@ export {};
 ```
 
 ```typescript
-// ✅ STEP 2: Create singleton DB (lib/server/db.ts)
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { DATABASE_URL } from '$env/static/private';
+// ✅ STEP 2: Create mock data (lib/server/auth-mock.ts)
+export const mockTokens = {
+	user1_token: 'user1',
+	user2_token: 'user2'
+};
 
-const client = postgres(DATABASE_URL);
-export const db = drizzle(client);
-```
+export const mockUsers = {
+	user1: {
+		id: 'user1',
+		email: 'user1@example.com',
+		name: 'Test User 1',
+		role: 'user' as const
+	},
+	user2: {
+		id: 'user2',
+		email: 'user2@example.com',
+		name: 'Test User 2',
+		role: 'admin' as const
+	}
+};
 
-```typescript
-// ✅ STEP 3: Create auth utilities (lib/server/auth.ts)
-import { db } from './db';
-import { sessions, users } from './schema';
-import { eq } from 'drizzle-orm';
+export function createMockSession(token: string) {
+	const userId = mockTokens[token];
+	if (!userId) return null;
 
-export async function verifySession(token: string) {
-	const result = await db
-		.select({
-			userId: users.id,
-			email: users.email,
-			role: users.role
-		})
-		.from(sessions)
-		.innerJoin(users, eq(sessions.userId, users.id))
-		.where(eq(sessions.token, token))
-		.limit(1);
-
-	return result[0] || null;
+	return {
+		user: mockUsers[userId],
+		sessionId: `session_${userId}_${Date.now()}`
+	};
 }
 ```
 
 ```typescript
-// ✅ STEP 4: Implement hooks (hooks.server.ts)
+// ✅ STEP 3: Implement hooks (hooks.server.ts)
 import type { Handle } from '@sveltejs/kit';
-import { verifySession } from '$lib/server/auth';
+import { createMockSession } from '$lib/server/auth-mock';
+
+export const USE_MOCK_AUTH = true;
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const sessionToken = event.cookies.get('session');
+	if (USE_MOCK_AUTH) {
+		// Extract token from URL or cookie
+		const tokenFromUrl = event.url.searchParams.get('token');
+		const tokenFromCookie = event.cookies.get('auth_token');
+		const token = tokenFromUrl || tokenFromCookie;
 
-	// ✅ Lightweight: Just verify and attach user
-	event.locals.user = sessionToken ? await verifySession(sessionToken) : null;
+		if (token) {
+			const session = createMockSession(token);
+			if (session) {
+				event.locals.user = session.user;
+				event.cookies.set('auth_token', token, {
+					path: '/',
+					httpOnly: true,
+					secure: true,
+					sameSite: 'strict',
+					maxAge: 60 * 60 * 24 * 30 // 30 days
+				});
+			}
+		} else {
+			event.locals.user = null;
+		}
+	}
 
 	return resolve(event);
 };
 ```
 
 ```typescript
-// ✅ STEP 5: Load page data (+page.server.ts)
+// ✅ STEP 4: Load page data (+page.server.ts)
 import type { PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { posts } from '$lib/server/schema';
-import { eq } from 'drizzle-orm';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
+import { mockDataService } from '$lib/mocks/services/data';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// ✅ Authorization check
 	if (!locals.user) {
-		throw error(401, 'Unauthorized');
+		throw redirect(302, '/?token=user1_token');
 	}
 
-	// ✅ Heavy queries HERE, not in hooks
-	const userPosts = await db.query.posts.findMany({
-		where: eq(posts.authorId, locals.user.id),
-		with: {
-			comments: true
-		}
-	});
+	// ✅ Get mock data for authenticated user
+	const userData = mockDataService.getUserData(locals.user.id);
+	const userPosts = mockDataService.getUserPosts(locals.user.id);
 
 	return {
+		user: locals.user,
+		userData,
 		posts: userPosts
 	};
 };
 ```
 
 ```svelte
-<!-- ✅ STEP 6: Render component (+page.svelte) -->
+<!-- ✅ STEP 5: Render component (+page.svelte) -->
 <script lang="ts">
 	import type { PageProps } from './$types';
 
 	let { data }: { data: PageProps } = $props();
 </script>
 
-<h1>Welcome {data.user?.email}</h1>
+<h1>Welcome {data.user?.name} ({data.user?.email})</h1>
 
-{#each data.posts as post}
-	<article>
-		<h2>{post.title}</h2>
-		<p>{post.comments.length} comments</p>
-	</article>
-{/each}
+<section>
+	<h2>Your Data</h2>
+	<pre>{JSON.stringify(data.userData, null, 2)}</pre>
+</section>
+
+<section>
+	<h2>Your Posts</h2>
+	{#each data.posts as post}
+		<article>
+			<h3>{post.title}</h3>
+			<p>{post.content}</p>
+		</article>
+	{/each}
+</section>
 ```
 
 ### Example 2: Context for Shared State

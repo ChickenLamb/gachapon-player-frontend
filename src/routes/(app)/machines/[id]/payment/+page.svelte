@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { CreditCard, Loader2 } from 'lucide-svelte';
+	import { CreditCard, LoaderCircle } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import LoadingSpinner from '$lib/components/base/LoadingSpinner.svelte';
 	import { createPaymentPreview, createPayment, formatPrice } from '$lib/mocks/services/payment';
@@ -149,7 +149,7 @@
 			class="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-purple-700 active:bg-purple-800 disabled:cursor-not-allowed disabled:bg-gray-300"
 		>
 			{#if isProcessing}
-				<Loader2 class="h-5 w-5 animate-spin" />
+				<LoaderCircle class="h-5 w-5 animate-spin" />
 				<span data-testid="payment-processing">Processing...</span>
 			{:else if paymentPreview}
 				<span>Pay {formatPrice(paymentPreview.total)}</span>

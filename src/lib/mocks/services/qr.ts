@@ -2,8 +2,121 @@
 import type { QRCode } from '$lib/types';
 
 /**
+ * QR code payload structure before encryption
+ */
+interface QRPayload {
+	qrId: string;
+	userId: string;
+	machineId: string;
+	paymentId: string;
+	timestamp: number;
+}
+
+/**
+ * Mock AES-256-GCM encryption using Web Crypto API
+ * In production, Friend B implements this server-side with proper key management
+ */
+async function encryptQRPayload(payload: QRPayload): Promise<string> {
+	// Generate encryption key (in production, use secure key management)
+	const keyMaterial = await crypto.subtle.importKey(
+		'raw',
+		new TextEncoder().encode('mock_secret_key_32_bytes_long!'),
+		{ name: 'PBKDF2' },
+		false,
+		['deriveBits', 'deriveKey']
+	);
+
+	const key = await crypto.subtle.deriveKey(
+		{
+			name: 'PBKDF2',
+			salt: new TextEncoder().encode('mock_salt'),
+			iterations: 100000,
+			hash: 'SHA-256'
+		},
+		keyMaterial,
+		{ name: 'AES-GCM', length: 256 },
+		true,
+		['encrypt', 'decrypt']
+	);
+
+	// Generate IV (Initialization Vector)
+	const iv = crypto.getRandomValues(new Uint8Array(12));
+
+	// Encrypt the payload
+	const encrypted = await crypto.subtle.encrypt(
+		{
+			name: 'AES-GCM',
+			iv
+		},
+		key,
+		new TextEncoder().encode(JSON.stringify(payload))
+	);
+
+	// Combine IV + encrypted data
+	const combined = new Uint8Array(iv.length + encrypted.byteLength);
+	combined.set(iv, 0);
+	combined.set(new Uint8Array(encrypted), iv.length);
+
+	// Encode to base64
+	return btoa(String.fromCharCode(...combined));
+}
+
+/**
+ * Mock AES-256-GCM decryption (for validation/testing)
+ * In production, Friend B's backend and Unity machine scanner implement this
+ */
+export async function decryptQRPayload(encryptedData: string): Promise<QRPayload | null> {
+	try {
+		// Decode from base64
+		const combined = Uint8Array.from(atob(encryptedData), (c) => c.charCodeAt(0));
+
+		// Extract IV and encrypted data
+		const iv = combined.slice(0, 12);
+		const encrypted = combined.slice(12);
+
+		// Regenerate key (same as encryption)
+		const keyMaterial = await crypto.subtle.importKey(
+			'raw',
+			new TextEncoder().encode('mock_secret_key_32_bytes_long!'),
+			{ name: 'PBKDF2' },
+			false,
+			['deriveBits', 'deriveKey']
+		);
+
+		const key = await crypto.subtle.deriveKey(
+			{
+				name: 'PBKDF2',
+				salt: new TextEncoder().encode('mock_salt'),
+				iterations: 100000,
+				hash: 'SHA-256'
+			},
+			keyMaterial,
+			{ name: 'AES-GCM', length: 256 },
+			true,
+			['encrypt', 'decrypt']
+		);
+
+		// Decrypt
+		const decrypted = await crypto.subtle.decrypt(
+			{
+				name: 'AES-GCM',
+				iv
+			},
+			key,
+			encrypted
+		);
+
+		const payload = JSON.parse(new TextDecoder().decode(decrypted));
+		return payload as QRPayload;
+	} catch {
+		return null;
+	}
+}
+
+/**
  * Mock QR code generation
  * Simulates backend QR generation after successful payment
+ * NOW WITH: AES-256-GCM encryption + 2-minute expiry (PRD requirement)
  */
 export async function generateQRCode(
 	userId: string,
@@ -15,8 +128,8 @@ export async function generateQRCode(
 
 	const qrId = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-	// Generate mock QR code data (in real app, this would be from backend)
-	const qrData = {
+	// Generate QR code payload
+	const qrPayload: QRPayload = {
 		qrId,
 		userId,
 		machineId,
@@ -24,16 +137,16 @@ export async function generateQRCode(
 		timestamp: Date.now()
 	};
 
-	// Encode as base64 (mock)
-	const qrCodeData = btoa(JSON.stringify(qrData));
+	// Encrypt using AES-256-GCM
+	const encryptedCode = await encryptQRPayload(qrPayload);
 
 	return {
 		id: qrId,
 		userId,
 		machineId,
 		paymentId,
-		code: qrCodeData,
-		expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+		code: encryptedCode,
+		expiresAt: new Date(Date.now() + 2 * 60 * 1000), // ✅ 2 minutes (PRD requirement)
 		createdAt: new Date(),
 		used: false
 	};

@@ -4,11 +4,13 @@
 
 services:
   # SvelteKit Frontend with Vite HMR
-  frontend:
+  gachapon-player-frontend:
     build:
       context: ../..
       dockerfile: docker/dev/Dockerfile
     container_name: gachapon-player-frontend
+    hostname: gachapon-player-frontend
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-net"
@@ -24,29 +26,35 @@ services:
       # Application
       NODE_ENV: development
 
+      # Wrangler configuration (Cloudflare Workers local dev)
+      WRANGLER_LOG: info
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-local}
+
       # Public environment variables (available in browser)
       PUBLIC_APP_NAME: Gachapon Player
     # Ports exposed only within traefik-net (no external access)
     expose:
       - "5173"
     volumes:
-      # Code volumes for hot-reload (Vite HMR)
+      # Code volumes for hot-reload (Vite HMR handles these via bind mounts)
       - ../../src:/app/src:rw
       - ../../static:/app/static:rw
       - ../../scripts:/app/scripts:rw
       - ../../drizzle:/app/drizzle:rw
       - ../../project.inlang:/app/project.inlang:ro
-      # Config files (read-only) - use dev configs without cloudflare/workerd
-      - ./svelte.config.js:/app/svelte.config.js:ro
-      - ./vite.config.ts:/app/vite.config.ts:ro
-      - ../../tsconfig.json:/app/tsconfig.json:ro
+      # Config files NOT in bind mounts - managed by develop.watch for auto-restart
+      # - ./svelte.config.js:/app/svelte.config.js:ro    # Removed: watch handles sync+restart
+      # - ./vite.config.ts:/app/vite.config.ts:ro        # Removed: watch handles sync+restart
+      # - ../../tsconfig.json:/app/tsconfig.json:ro      # Removed: watch handles sync+restart
+      # Static config files (no restart needed)
       - ../../wrangler.jsonc:/app/wrangler.jsonc:ro
       - ../../eslint.config.js:/app/eslint.config.js:ro
+      # Persist Wrangler state (local D1 database, cache, etc.)
+      - wrangler-state:/app/.wrangler
       # Exclude build artifacts and node_modules
       - /app/node_modules
       - /app/.svelte-kit
       - /app/build
-      - /app/.wrangler
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "--header=Host: localhost", "http://127.0.0.1:5173"]
       interval: 30s
@@ -55,22 +63,12 @@ services:
       retries: 3
     networks:
       - traefik-net
-    restart: unless-stopped
     develop:
       watch:
-        # Watch source files (Vite HMR handles reload automatically)
-        - action: sync
-          path: ../../src
-          target: /app/src
-          ignore:
-            - "**/*.test.ts"
-            - "**/*.test.js"
-            - "**/__tests__/**"
-        # Watch static files
-        - action: sync
-          path: ../../static
-          target: /app/static
-        # Watch and rebuild on config changes
+        # NOTE: src/ and static/ are NOT watched here - Vite HMR handles them via bind mounts
+        # This avoids redundant monitoring and the associated warnings
+
+        # Watch and auto-restart on config changes
         - action: sync+restart
           path: ./svelte.config.js
           target: /app/svelte.config.js
@@ -80,7 +78,8 @@ services:
         - action: sync+restart
           path: ../../tsconfig.json
           target: /app/tsconfig.json
-        # Rebuild on package.json changes
+
+        # Rebuild container on package.json changes
         - action: rebuild
           path: ../../package.json
 
@@ -88,6 +87,12 @@ networks:
   traefik-net:
     external: true
     name: traefik-net
+
+volumes:
+  # Named volume for persisting Wrangler state (local D1 database, miniflare state, etc.)
+  # This ensures your local database survives container restarts
+  wrangler-state:
+    name: gachapon-wrangler-state
 
 # Usage Instructions:
 # ===================
@@ -108,10 +113,10 @@ networks:
 #    docker compose -f docker/dev/docker-compose.yml build --no-cache
 #
 # 6. View logs:
-#    docker compose -f docker/dev/docker-compose.yml logs -f frontend
+#    docker compose -f docker/dev/docker-compose.yml logs -f gachapon-player-frontend
 #
 # 7. Execute commands in container:
-#    docker compose -f docker/dev/docker-compose.yml exec frontend sh
+#    docker compose -f docker/dev/docker-compose.yml exec gachapon-player-frontend sh
 #
 # Service URLs (via Traefik):
 # ===========================
