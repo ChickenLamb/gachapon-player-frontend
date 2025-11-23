@@ -281,10 +281,11 @@
 			<!-- <EventsCarousel events={data.activeEvents} onEventClick={openEventModal} /> -->
 
 			<!-- QR Code Section -->
-			<div class="rounded-2xl bg-white shadow-sm">
+			<div class="mt-4 rounded-2xl bg-white shadow-sm">
 				<div class="pb-1 text-center">
-					<h2 class="text-lg font-bold text-navy">Connect with Gashapon</h2>
-
+					<div class="pt-4">
+						<h2 class="mb-2 text-lg font-bold text-navy">Show QR code to Gashapon</h2>
+					</div>
 					<div
 						class="mx-auto inline-block rounded-2xl bg-gradient-to-b from-accent-green/10 to-accent-green/5 p-2"
 						data-testid="user-qr-code"
@@ -294,7 +295,7 @@
 					<p class="mb-2 text-sm font-bold text-navy">{data.user.id}</p>
 
 					{#if machine.status === 'idle'}
-						<p class="text-sm text-gray-500">Waiting for machine scan...</p>
+						<p class="text-sm text-accent-green">Waiting for machine scan...</p>
 					{:else if machine.status === 'connecting'}
 						<div class="flex items-center justify-center gap-2 text-navy">
 							<Loader2 class="h-4 w-4 animate-spin" />

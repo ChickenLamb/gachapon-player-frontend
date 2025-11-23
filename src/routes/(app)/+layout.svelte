@@ -65,9 +65,7 @@
 	<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
 		<div class="max-h-[90vh] w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
 			<!-- Header Image -->
-			<div
-				class="relative bg-gradient-to-br from-purple-600 to-purple-800 p-6 text-center text-white"
-			>
+			<div class="relative bg-gradient-to-br from-navy-light to-navy p-6 text-center text-white">
 				<div
 					class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20"
 				>
