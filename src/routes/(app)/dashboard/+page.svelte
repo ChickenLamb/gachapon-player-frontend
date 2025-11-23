@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { CheckCircle2, AlertCircle, Loader2, CreditCard, X, Ticket, Clock } from 'lucide-svelte';
+	import { CheckCircle2, AlertCircle, Loader2, CreditCard, Clock } from 'lucide-svelte';
+	// import { X, Ticket } from 'lucide-svelte'; // TODO: Enable for future release
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
-	import DiscountBadge from '$lib/components/DiscountBadge.svelte';
-	import EventsCarousel from '$lib/components/EventsCarousel.svelte';
+	// import DiscountBadge from '$lib/components/DiscountBadge.svelte'; // TODO: Enable for future release
+	// import EventsCarousel from '$lib/components/EventsCarousel.svelte'; // TODO: Enable for future release
 	import { getMachineContext } from '$lib/stores/machine.svelte';
 	import { formatPrice } from '$lib/mocks/services/payment';
-	import type { MerchantEvent } from '$lib/types';
+	// import type { MerchantEvent } from '$lib/types'; // TODO: Enable for future release
 
 	let { data } = $props();
 	const machine = getMachineContext();
@@ -16,21 +17,23 @@
 	let showSpinReminder = $derived($page.url.searchParams.get('paid') === 'true');
 
 	// Event modal state
-	let showEventModal = $state(false);
-	let selectedEvent = $state<MerchantEvent | null>(null);
+	// TODO: Enable for future release
+	// let showEventModal = $state(false);
+	// let selectedEvent = $state<MerchantEvent | null>(null);
 
 	// Spin reminder modal state
 	let spinReminderDismissed = $state(false);
 	let showSpinModal = $derived(showSpinReminder && !spinReminderDismissed && machine.scanned);
 
-	function openEventModal(event: MerchantEvent) {
-		selectedEvent = event;
-		showEventModal = true;
-	}
+	// TODO: Enable for future release
+	// function openEventModal(event: MerchantEvent) {
+	// 	selectedEvent = event;
+	// 	showEventModal = true;
+	// }
 
-	function closeEventModal() {
-		showEventModal = false;
-	}
+	// function closeEventModal() {
+	// 	showEventModal = false;
+	// }
 
 	function dismissSpinReminder() {
 		spinReminderDismissed = true;
@@ -38,15 +41,16 @@
 		goto('/dashboard', { replaceState: true });
 	}
 
-	function getEventDiscountPercentage(event: MerchantEvent): number {
-		if (event.type === 'DISCOUNT') {
-			const match = event.description.match(/(\d+)%/);
-			if (match) {
-				return parseInt(match[1], 10);
-			}
-		}
-		return 0;
-	}
+	// TODO: Enable for future release
+	// function getEventDiscountPercentage(event: MerchantEvent): number {
+	// 	if (event.type === 'DISCOUNT') {
+	// 		const match = event.description.match(/(\d+)%/);
+	// 		if (match) {
+	// 			return parseInt(match[1], 10);
+	// 		}
+	// 	}
+	// 	return 0;
+	// }
 
 	function getQRCodeUrl(userId: string): string {
 		return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(userId)}`;
@@ -125,11 +129,12 @@
 			<!-- ========== CONNECTED STATE ========== -->
 
 			<!-- Machine-Specific Events Carousel (above payment) -->
-			<EventsCarousel
+			<!-- TODO: Enable events carousel in future release -->
+			<!-- <EventsCarousel
 				events={connectedMachine.activeEvents || []}
 				subtitle="Valid for this machine only"
 				onEventClick={openEventModal}
-			/>
+			/> -->
 
 			<!-- Machine Prizes Section (replaces QR when connected) -->
 			<div class="rounded-xl bg-white p-4 shadow-sm">
@@ -272,13 +277,13 @@
 			<!-- ========== NOT CONNECTED STATE ========== -->
 
 			<!-- Global Events Carousel (above QR) -->
-			<EventsCarousel events={data.activeEvents} onEventClick={openEventModal} />
+			<!-- TODO: Enable events carousel in future release -->
+			<!-- <EventsCarousel events={data.activeEvents} onEventClick={openEventModal} /> -->
 
 			<!-- QR Code Section -->
 			<div class="rounded-2xl bg-white shadow-sm">
 				<div class="pb-1 text-center">
 					<h2 class="text-lg font-bold text-navy">Connect with Gashapon</h2>
-					<p class=" text-sm text-gray-500">Show this to the machine to start playing</p>
 
 					<div
 						class="mx-auto inline-block rounded-2xl bg-gradient-to-b from-accent-green/10 to-accent-green/5 p-2"
@@ -424,11 +429,11 @@
 	</div>
 {/if}
 
+<!-- TODO: Enable for future release -->
 <!-- Event Modal -->
-{#if showEventModal && selectedEvent}
+<!-- {#if showEventModal && selectedEvent}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 		<div class="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-xl">
-			<!-- Modal Header -->
 			<div class="relative bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white">
 				<button
 					type="button"
@@ -446,7 +451,6 @@
 				{/if}
 			</div>
 
-			<!-- Modal Body -->
 			<div class="p-6">
 				<p class="mb-4 text-gray-600">{selectedEvent.description}</p>
 
@@ -480,4 +484,4 @@
 			</div>
 		</div>
 	</div>
-{/if}
+{/if} -->
