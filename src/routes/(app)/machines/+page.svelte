@@ -61,13 +61,14 @@
 	</div>
 
 	<!-- Show Prizes Toggle -->
-	<div class="flex justify-end px-4 pt-3">
+	<div class="flex justify-start px-4 pt-3">
 		<button
 			type="button"
 			onclick={togglePrizes}
-			class="flex items-center gap-2 rounded-full px-4 py-2 shadow-sm transition-colors {showPrizes
+			class="flex items-center gap-2 rounded-full px-4 py-2 transition-colors {showPrizes
 				? 'bg-accent-green text-white'
-				: 'bg-white text-gray-700 hover:bg-gray-50'}"
+				: 'bg-white text-accent-green hover:bg-gray-50'}"
+			style="box-shadow: 0 4px 6px -1px rgb(34 197 94 / 0.3), 0 2px 4px -2px rgb(34 197 94 / 0.3);"
 		>
 			{#if showPrizes}
 				<EyeOff class="h-5 w-5" />

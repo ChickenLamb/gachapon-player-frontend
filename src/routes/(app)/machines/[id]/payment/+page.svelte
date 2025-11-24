@@ -106,7 +106,7 @@
 				<div class="border-t border-gray-200 pt-3">
 					<div class="flex justify-between">
 						<span class="font-semibold text-gray-900">Total</span>
-						<span class="text-2xl font-bold text-purple-600" data-testid="payment-total">
+						<span class="text-2xl font-bold text-navy" data-testid="payment-total">
 							{formatPrice(paymentPreview.total)}
 						</span>
 					</div>
@@ -117,8 +117,8 @@
 		<!-- Payment Method (Mock) -->
 		<div class="rounded-xl border border-gray-200 bg-white p-4">
 			<h3 class="mb-3 font-semibold text-gray-900">Payment Method</h3>
-			<div class="flex items-center gap-3 rounded-lg border-2 border-purple-600 bg-gray-50 p-3">
-				<CreditCard class="h-6 w-6 text-purple-600" />
+			<div class="flex items-center gap-3 rounded-lg border-2 border-navy bg-gray-50 p-3">
+				<CreditCard class="h-6 w-6 text-navy" />
 				<div class="flex-1">
 					<p class="font-medium text-gray-900">Mock Payment</p>
 					<p class="text-xs text-gray-500">Development mode - instant approval</p>
@@ -146,7 +146,7 @@
 			data-testid="confirm-payment-button"
 			onclick={handlePayment}
 			disabled={isProcessing || isLoadingPreview || !paymentPreview}
-			class="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 py-4 font-semibold text-white shadow-lg transition-colors hover:bg-purple-700 active:bg-purple-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+			class="flex w-full items-center justify-center gap-2 rounded-xl bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light active:bg-navy disabled:cursor-not-allowed disabled:bg-gray-300"
 		>
 			{#if isProcessing}
 				<LoaderCircle class="h-5 w-5 animate-spin" />

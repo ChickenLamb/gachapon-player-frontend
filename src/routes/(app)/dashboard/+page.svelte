@@ -158,14 +158,14 @@
 					<button
 						type="button"
 						onclick={() => machine.disconnect()}
-						class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+						class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-accent-brown shadow-sm transition-colors hover:bg-gray-50"
 					>
 						Disconnect
 					</button>
 				</div>
 
 				<!-- Spin Tracker -->
-				<div class="mb-4 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 p-4">
+				<div class="rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 p-4">
 					<div class="flex items-center gap-4">
 						<img src="/machine-milestone.svg" alt="Milestone" class="h-20 w-auto" />
 						<div class="flex-1">
@@ -191,9 +191,7 @@
 				</div>
 
 				<!-- Payment Section (after milestone) -->
-				<div
-					class="mb-4 rounded-xl bg-gradient-to-br from-navy-light to-navy p-5 text-white shadow-lg"
-				>
+				<div class="rounded-xl bg-gradient-to-br from-navy-light to-navy p-3 text-white shadow-lg">
 					<div class="mb-3 flex items-center justify-between">
 						<div class="flex items-center gap-3">
 							<CreditCard class="h-5 w-5" />
@@ -240,7 +238,13 @@
 							<span class="h-5 w-1 rounded-full bg-accent-green"></span>
 							Recent Purchases
 						</h3>
-						<a href="/history" class="text-sm font-medium text-accent-green">view all</a>
+						<a
+							href="/history"
+							class="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-accent-green transition-colors hover:bg-gray-50"
+							style="box-shadow: 0 4px 6px -1px rgb(34 197 94 / 0.3), 0 2px 4px -2px rgb(34 197 94 / 0.3);"
+						>
+							view all
+						</a>
 					</div>
 
 					<div class="space-y-3">
@@ -337,7 +341,13 @@
 							<span class="h-5 w-1 rounded-full bg-accent-green"></span>
 							New product
 						</h3>
-						<a href="/machines" class="text-sm font-medium text-accent-green">view all</a>
+						<a
+							href="/machines"
+							class="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-accent-green transition-colors hover:bg-gray-50"
+							style="box-shadow: 0 4px 6px -1px rgb(34 197 94 / 0.3), 0 2px 4px -2px rgb(34 197 94 / 0.3);"
+						>
+							view all
+						</a>
 					</div>
 
 					<div class="grid grid-cols-3 gap-3">

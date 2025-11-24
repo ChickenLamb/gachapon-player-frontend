@@ -50,11 +50,11 @@
 		<button
 			type="button"
 			onclick={() => (showTcModal = true)}
-			class="text-sm text-gray-500 underline hover:text-navy"
+			class="text-sm text-accent-brown underline hover:text-navy"
 		>
 			Terms & Conditions (v{TC_VERSION})
 		</button>
-		<p class="mt-2 text-xs text-gray-400">© 2024 Gachapon. All rights reserved.</p>
+		<p class="mt-2 text-xs text-gray-400">© 2025 Gachapon. All rights reserved.</p>
 	</footer>
 
 	<BottomNav />
