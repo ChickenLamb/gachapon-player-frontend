@@ -146,7 +146,7 @@
 			data-testid="confirm-payment-button"
 			onclick={handlePayment}
 			disabled={isProcessing || isLoadingPreview || !paymentPreview}
-			class="flex w-full items-center justify-center gap-2 rounded-xl bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light active:bg-navy disabled:cursor-not-allowed disabled:bg-gray-300"
+			class="flex w-full items-center justify-center gap-2 rounded-xl bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy/90 active:bg-navy disabled:cursor-not-allowed disabled:bg-gray-300"
 		>
 			{#if isProcessing}
 				<LoaderCircle class="h-5 w-5 animate-spin" />

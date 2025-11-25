@@ -29,6 +29,8 @@
 		"db:studio": "node scripts/db-studio-autodetect.mjs",
 		"db:studio:remote": "drizzle-kit studio --config=drizzle.config.remote.ts",
 		"deploy": "pnpm run build && wrangler deploy",
+		"deploy:staging": "pnpm run build && wrangler deploy --env staging",
+		"deploy:prod": "pnpm run build && wrangler deploy --env production",
 		"cf-typegen": "wrangler types ./src/worker-configuration.d.ts"
 	},
 	"lint-staged": {

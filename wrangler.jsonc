@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-svelte-app",
+	"name": "gachapon-player-frontend",
 	"main": ".svelte-kit/cloudflare/_worker.js",
 	"compatibility_date": "2025-11-11",
 	"compatibility_flags": ["nodejs_compat"],
@@ -15,14 +15,19 @@
 	"observability": {
 		"enabled": true
 	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "gachapon-player-frontend-db",
-			"database_id": "ffce75c6-f268-4a30-b3e6-686452d75ecf",
-			"migrations_dir": "drizzle/migrations"
+	/**
+	 * Environments
+	 * Deploy to staging: pnpm run deploy:staging
+	 * Deploy to production: pnpm run deploy:prod
+	 */
+	"env": {
+		"staging": {
+			"name": "gachapon-player-frontend-staging"
+		},
+		"production": {
+			"name": "gachapon-player-frontend-production"
 		}
-	]
+	}
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

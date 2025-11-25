@@ -3,15 +3,12 @@
 declare global {
 	namespace App {
 		interface Platform {
-			env: {
-				DB: D1Database;
-			};
+			env: Record<string, never>; // Add environment bindings here when needed
 			cf: CfProperties;
 			ctx: ExecutionContext;
 		}
 
 		interface Locals {
-			db: import('$lib/server/db').DB;
 			// Gachapon-specific auth (JWT from Unity WebView)
 			user: import('$lib/types').GachaponUser | null;
 			session: import('$lib/types').GachaponSession | null;

@@ -84,21 +84,21 @@
 						<ol class="space-y-2 text-sm text-gray-600">
 							<li class="flex gap-2">
 								<span
-									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600"
+									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-navy-light/30 text-xs font-bold text-navy"
 									>1</span
 								>
 								<span>Show your QR code to the machine</span>
 							</li>
 							<li class="flex gap-2">
 								<span
-									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600"
+									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-navy-light/30 text-xs font-bold text-navy"
 									>2</span
 								>
 								<span>Complete payment on your phone</span>
 							</li>
 							<li class="flex gap-2">
 								<span
-									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-600"
+									class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-navy-light/30 text-xs font-bold text-navy"
 									>3</span
 								>
 								<span>Turn the handle and collect your prize!</span>
@@ -143,7 +143,7 @@
 				<button
 					type="button"
 					onclick={acceptTerms}
-					class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white transition-colors hover:bg-purple-700"
+					class="w-full rounded-xl bg-navy py-3 font-semibold text-white transition-colors hover:bg-navy/90"
 				>
 					I Accept & Continue
 				</button>

@@ -250,63 +250,38 @@ pnpm run preview      # Build + run with Wrangler locally
 
 ---
 
-### 6. Deploying to Production
+### 6. Deploying to Cloudflare
 
 **What you're doing**: Pushing your app to Cloudflare's edge network
 
-```bash
-# Apply database migrations to production first
-npx wrangler d1 migrations apply etee --remote
+This project has two environments configured:
 
-# Deploy application
-pnpm run deploy
+#### Deploy to Staging
+
+```bash
+pnpm run deploy:staging
+# Builds and deploys to: gachapon-player-frontend-staging.workers.dev
 ```
+
+**Use for**: Testing features before production release
+
+#### Deploy to Production
+
+```bash
+pnpm run deploy:prod
+# Builds and deploys to: gachapon-player-frontend-production.workers.dev
+```
+
+**Use for**: Shipping features to users
 
 **Key concepts**:
 
-- ✅ Always migrate database before deploying code
-- ✅ Production database is separate from local
+- ✅ Staging environment for testing before production
+- ✅ Production environment for live users
 - ✅ Changes are live immediately on workers.dev
+- ✅ Use mock data services (no database migrations needed)
 
-**When you need it**: Shipping features to production
-
----
-
-## 🗄️ Database Migration Flow
-
-```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Schema as schema.ts
-    participant Script as db-generate-migration.mjs
-    participant Drizzle as Drizzle Kit
-    participant LocalDB as Local D1
-    participant ProdDB as Production D1
-
-    Dev->>Schema: Edit database schema
-    Dev->>Script: pnpm run db:generate
-    Script->>Dev: Prompt for migration name
-    Dev->>Script: Enter: user_add_profile_fields
-    Script->>Script: Validate naming pattern
-    Script->>Drizzle: drizzle-kit generate --name=...
-    Drizzle->>Drizzle: Compare schema vs migrations
-    Drizzle-->>Script: Create 0001_user_add_profile_fields.sql
-
-    Dev->>LocalDB: wrangler apply --local
-    LocalDB-->>Dev: ✅ Migration applied locally
-    Dev->>Dev: Test changes
-
-    Dev->>ProdDB: wrangler apply --remote
-    ProdDB-->>Dev: ✅ Migration applied to production
-    Dev->>Dev: pnpm run deploy
-```
-
-**Key Points**:
-
-- ✅ Migration names enforced: `<context>_<action>_<detail>`
-- ✅ Local testing before production
-- ✅ Migrations are version-controlled SQL files
-- ✅ Always apply migrations before deploying code
+**When you need it**: Shipping features to staging or production
 
 ---
 
@@ -369,12 +344,14 @@ sequenceDiagram
 
 ## 🌍 Deployment to Cloudflare
 
+🚀 **Deployment Guide - Gachapon Player Frontend**
+
 First-time deployment setup (one-time process):
 
 ### Prerequisites
 
 - Cloudflare account (free tier available)
-- Node.js 24+ installed (required for Better Auth CLI)
+- Wrangler CLI (included in project dependencies)
 
 ### Step 1: Authenticate with Cloudflare
 
@@ -383,49 +360,41 @@ npx wrangler login
 # Opens browser, authorize access
 ```
 
-### Step 2: Create Production D1 Database
+### Step 2: Deploy to Staging (First Deployment)
 
 ```bash
-npx wrangler d1 create etee
-# Output shows: database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-```
-
-### Step 3: Update Configuration
-
-Edit `wrangler.jsonc` with your new database ID:
-
-```jsonc
-{
-	"name": "my-svelte-app",
-	"compatibility_date": "2024-11-04",
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "etee",
-			"database_id": "YOUR-DATABASE-ID-HERE" // ← Paste your ID
-		}
-	]
-}
-```
-
-### Step 4: Apply Migrations to Production
-
-```bash
-npx wrangler d1 migrations apply etee --remote
-# Applies all migrations to production database
-```
-
-### Step 5: Deploy Application
-
-```bash
-pnpm run deploy
+pnpm run deploy:staging
 # Builds and deploys to Cloudflare Workers
-# Output shows: https://my-svelte-app.YOUR-SUBDOMAIN.workers.dev
+# Output shows: https://gachapon-player-frontend-staging.YOUR-SUBDOMAIN.workers.dev
 ```
 
-### Step 6: Test Production
+### Step 3: Test Staging Environment
 
-Visit your workers.dev URL and verify everything works!
+Visit your staging URL and verify:
+
+- ✅ App loads correctly
+- ✅ Mock authentication works (`?token=user1_token`)
+- ✅ All features functional with mock data
+
+### Step 4: Deploy to Production (When Ready)
+
+```bash
+pnpm run deploy:prod
+# Builds and deploys to production
+# Output shows: https://gachapon-player-frontend-production.YOUR-SUBDOMAIN.workers.dev
+```
+
+### Step 5: Monitor Deployment
+
+Check deployment status:
+
+```bash
+# View staging logs
+npx wrangler tail --env staging
+
+# View production logs
+npx wrangler tail --env production
+```
 
 ### Deployment Flow Diagram
 
@@ -435,28 +404,33 @@ graph TD
     B -->|No| C[Fix issues]
     C --> B
     B -->|Yes| D[git commit & push]
-    D --> E[Apply migrations to production]
-    E --> F[npx wrangler d1 migrations apply etee --remote]
-    F --> G{Migrations successful?}
-    G -->|No| H[Check migration errors]
-    H --> E
-    G -->|Yes| I[Deploy application]
-    I --> J[pnpm run deploy]
-    J --> K{Build successful?}
-    K -->|No| L[Fix build errors]
+    D --> E[Deploy to Staging]
+    E --> F[pnpm run deploy:staging]
+    F --> G{Build successful?}
+    G -->|No| H[Fix build errors]
+    H --> D
+    G -->|Yes| I[✅ Live on Staging]
+    I --> J[Test staging environment]
+    J --> K{Everything working?}
+    K -->|No| L[Debug and fix]
     L --> D
-    K -->|Yes| M[✅ Live on Cloudflare Workers]
-    M --> N[Test production URL]
-    N --> O{Everything working?}
-    O -->|No| P[Check logs & rollback if needed]
-    O -->|Yes| Q[🎉 Deployment Complete]
+    K -->|Yes| M[Deploy to Production]
+    M --> N[pnpm run deploy:prod]
+    N --> O{Build successful?}
+    O -->|No| P[Check build errors]
+    O -->|Yes| Q[✅ Live on Production]
+    Q --> R[Test production environment]
+    R --> S{Everything working?}
+    S -->|No| T[Check logs & rollback if needed]
+    S -->|Yes| U[🎉 Deployment Complete]
 
     style A fill:#93c5fd,stroke:#333,color:#000
-    style M fill:#4ade80,stroke:#333,color:#000
-    style Q fill:#fbbf24,stroke:#333,color:#000
+    style I fill:#c084fc,stroke:#333,color:#000
+    style Q fill:#4ade80,stroke:#333,color:#000
+    style U fill:#fbbf24,stroke:#333,color:#000
 ```
 
-**Remember**: Always migrate database BEFORE deploying code!
+**Remember**: Test on staging before deploying to production!
 
 ---
 
@@ -692,9 +666,11 @@ pnpm run check            # TypeScript + Svelte validation
 ### Deployment
 
 ```bash
-pnpm run deploy           # Build + deploy to Cloudflare
 npx wrangler login        # Authenticate with Cloudflare
-npx wrangler d1 create <name>  # Create new D1 database
+pnpm run deploy:staging   # Build + deploy to staging
+pnpm run deploy:prod      # Build + deploy to production
+npx wrangler tail --env staging    # View staging logs
+npx wrangler tail --env production # View production logs
 ```
 
 ---

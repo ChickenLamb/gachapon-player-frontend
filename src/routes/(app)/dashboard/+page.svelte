@@ -404,7 +404,7 @@
 				<div class="mb-6 space-y-3">
 					<div class="flex items-center gap-3">
 						<div
-							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600"
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-navy-light/30 text-sm font-bold text-navy"
 						>
 							1
 						</div>
@@ -412,7 +412,7 @@
 					</div>
 					<div class="flex items-center gap-3">
 						<div
-							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600"
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-navy-light/30 text-sm font-bold text-navy"
 						>
 							2
 						</div>
@@ -420,7 +420,7 @@
 					</div>
 					<div class="flex items-center gap-3">
 						<div
-							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-sm font-bold text-purple-600"
+							class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-navy-light/30 text-sm font-bold text-navy"
 						>
 							3
 						</div>
@@ -431,7 +431,7 @@
 				<button
 					type="button"
 					onclick={dismissSpinReminder}
-					class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white transition-colors hover:bg-purple-700"
+					class="w-full rounded-xl bg-navy py-3 font-semibold text-white transition-colors hover:bg-navy/90"
 				>
 					Got it!
 				</button>

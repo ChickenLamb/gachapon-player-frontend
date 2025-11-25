@@ -1,16 +1,7 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import type { Handle } from '@sveltejs/kit';
 import { paraglideMiddleware } from '$lib/paraglide/server';
-import { createDB } from '$lib/server/db';
 import { USE_MOCK_AUTH, extractTokenFromUrl, createMockSession } from '$lib/server/auth-mock';
-
-const handleDatabase: Handle = async ({ event, resolve }) => {
-	// Skip database initialization if platform bindings not available (Docker dev mode)
-	if (event.platform?.env?.DB) {
-		event.locals.db = createDB(event.platform.env.DB);
-	}
-	return resolve(event);
-};
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -93,4 +84,4 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = sequence(handleDatabase, handleParaglide, handleAuth);
+export const handle: Handle = sequence(handleParaglide, handleAuth);
