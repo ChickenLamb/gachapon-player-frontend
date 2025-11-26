@@ -202,12 +202,20 @@
 						</div>
 					</div>
 
-					<a
-						href="/machines/{connectedMachine.id}/payment"
-						class="block w-full rounded-xl bg-white py-3 text-center font-semibold text-navy shadow-md transition-colors hover:bg-purple-50"
-					>
-						Pay & Spin Now
-					</a>
+					{#if connectedMachine.inventoryCount > 0}
+						<a
+							href="/machines/{connectedMachine.id}/payment"
+							class="block w-full rounded-xl bg-white py-3 text-center font-semibold text-navy shadow-md transition-colors hover:bg-purple-50"
+						>
+							Pay & Spin Now
+						</a>
+					{:else}
+						<div
+							class="block w-full cursor-not-allowed rounded-xl bg-gray-300 py-3 text-center font-semibold text-red-800"
+						>
+							Out of Stock
+						</div>
+					{/if}
 
 					<p class="mt-2 text-center text-xs">1 payment = 1 spin</p>
 				</div>

@@ -8,12 +8,13 @@ import type { Payment, PaymentPreview, PaymentStatus } from '$lib/types';
 export async function createPaymentPreview(
 	machineId: string,
 	pricePerPlay: number,
+	quantity: number = 1,
 	eventId?: string
 ): Promise<PaymentPreview> {
 	// Simulate network delay
 	await new Promise((resolve) => setTimeout(resolve, 500));
 
-	const subtotal = pricePerPlay;
+	const subtotal = pricePerPlay * quantity;
 	const tax = Math.round(subtotal * 0.06); // 6% tax
 	let discount = 0;
 

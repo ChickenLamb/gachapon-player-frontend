@@ -108,7 +108,8 @@ export const mockMachines: Record<string, Machine> = {
 		featuredPrizes: [mockPrizes.prize_001, mockPrizes.prize_003, mockPrizes.prize_006],
 		imageUrl: machineImage,
 		description:
-			'Premium anime collectibles and limited edition merchandise. High chance of rare items!'
+			'Premium anime collectibles and limited edition merchandise. High chance of rare items!',
+		inventoryCount: 15
 	},
 	machine_002: {
 		id: 'machine_002',
@@ -118,7 +119,8 @@ export const mockMachines: Record<string, Machine> = {
 		pricePerPlay: 300, // RM 3.00
 		featuredPrizes: [mockPrizes.prize_002, mockPrizes.prize_005],
 		imageUrl: machineImage,
-		description: 'Win dining vouchers and food discounts from popular restaurants!'
+		description: 'Win dining vouchers and food discounts from popular restaurants!',
+		inventoryCount: 0 // Out of stock for testing
 	},
 	machine_003: {
 		id: 'machine_003',
@@ -128,7 +130,8 @@ export const mockMachines: Record<string, Machine> = {
 		pricePerPlay: 400, // RM 4.00
 		featuredPrizes: [mockPrizes.prize_003, mockPrizes.prize_008, mockPrizes.prize_004],
 		imageUrl: machineImage,
-		description: 'Game credits, free plays, and gaming merchandise!'
+		description: 'Game credits, free plays, and gaming merchandise!',
+		inventoryCount: 3 // Low stock for testing
 	},
 	machine_004: {
 		id: 'machine_004',
@@ -138,7 +141,8 @@ export const mockMachines: Record<string, Machine> = {
 		pricePerPlay: 350, // RM 3.50
 		featuredPrizes: [mockPrizes.prize_004, mockPrizes.prize_007],
 		imageUrl: machineImage,
-		description: 'Adorable keychains, stickers, and kawaii accessories!'
+		description: 'Adorable keychains, stickers, and kawaii accessories!',
+		inventoryCount: 8
 	},
 	machine_005: {
 		id: 'machine_005',
@@ -148,7 +152,8 @@ export const mockMachines: Record<string, Machine> = {
 		pricePerPlay: 1000, // RM 10.00
 		featuredPrizes: [mockPrizes.prize_001, mockPrizes.prize_006],
 		imageUrl: machineImage,
-		description: 'Exclusive high-value prizes and limited editions. Currently under maintenance.'
+		description: 'Exclusive high-value prizes and limited editions. Currently under maintenance.',
+		inventoryCount: 5
 	},
 	machine_006: {
 		id: 'machine_006',
@@ -158,7 +163,8 @@ export const mockMachines: Record<string, Machine> = {
 		pricePerPlay: 600, // RM 6.00
 		featuredPrizes: [mockPrizes.prize_006, mockPrizes.prize_001, mockPrizes.prize_003],
 		imageUrl: machineImage,
-		description: 'Surprise prizes every time! Blind boxes and mystery items.'
+		description: 'Surprise prizes every time! Blind boxes and mystery items.',
+		inventoryCount: 12
 	}
 };
 

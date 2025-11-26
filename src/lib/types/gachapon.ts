@@ -35,6 +35,7 @@ export interface Machine {
 	activeEvents?: MerchantEvent[]; // Machine-specific events
 	imageUrl?: string;
 	description?: string;
+	inventoryCount: number; // Available stock for purchase
 }
 
 // ============================================
