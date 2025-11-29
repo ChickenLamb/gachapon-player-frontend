@@ -38,15 +38,18 @@
 			<h3 class="mb-3 font-bold text-navy">Purchase Details</h3>
 			<div class="space-y-3">
 				<div class="flex items-center justify-between">
-					<span class="text-sm text-gray-500">Price per play</span>
-					<p class="text-lg font-bold text-navy">{formatPrice(data.item.pricePerPlay)}</p>
+					<span class="text-sm text-gray-500">Price per draw</span>
+					<p class="text-lg font-bold text-navy">{formatPrice(data.item.pricePerDraw)}</p>
 				</div>
 				<div class="flex items-center justify-between border-t border-gray-100 pt-3">
 					<div class="flex items-center gap-2 text-sm text-gray-500">
 						<Clock class="h-4 w-4" />
 						<span>{formatDate(data.item.wonAt)}</span>
 					</div>
-					<span class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green">Dispensed</span>
+					<span
+						class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green"
+						>Dispensed</span
+					>
 				</div>
 			</div>
 		</div>

@@ -81,7 +81,7 @@
 									</div>
 								</div>
 								<div class="flex items-center justify-between">
-									<p class="font-bold text-navy">{formatPrice(item.pricePerPlay)}</p>
+									<p class="font-bold text-navy">{formatPrice(item.pricePerDraw)}</p>
 									<span
 										class="rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green"
 									>

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Ticket } from 'lucide-svelte';
-	import DiscountBadge from '$lib/components/DiscountBadge.svelte';
 	import type { MerchantEvent } from '$lib/types';
 
 	interface Props {
@@ -11,14 +10,13 @@
 
 	let { events, subtitle = 'Available at participating machines', onEventClick }: Props = $props();
 
-	function getEventDiscountPercentage(event: MerchantEvent): number {
-		if (event.type === 'DISCOUNT') {
-			const match = event.description.match(/(\d+)%/);
-			if (match) {
-				return parseInt(match[1], 10);
-			}
+	function getEventRewardDisplay(event: MerchantEvent): string {
+		if (event.rewardType === 'EXTRA_SPIN') {
+			return `+${event.rewardValue} bonus draw${parseInt(event.rewardValue) > 1 ? 's' : ''}`;
+		} else if (event.rewardType === 'VOUCHER') {
+			return 'Voucher reward';
 		}
-		return 0;
+		return event.description;
 	}
 </script>
 
@@ -35,13 +33,13 @@
 						<div class="flex items-center gap-3">
 							<Ticket class="h-6 w-6" />
 							<div>
-								<p class="font-semibold">{event.name}</p>
+								<p class="font-semibold">{event.title}</p>
 								<p class="text-xs text-amber-100">{subtitle}</p>
 							</div>
 						</div>
-						{#if getEventDiscountPercentage(event) > 0}
-							<DiscountBadge percentage={getEventDiscountPercentage(event)} size="sm" />
-						{/if}
+						<span class="rounded-full bg-white/20 px-2 py-1 text-xs font-medium">
+							{getEventRewardDisplay(event)}
+						</span>
 					</div>
 				</button>
 			{/each}

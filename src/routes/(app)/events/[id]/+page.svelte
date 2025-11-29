@@ -5,29 +5,14 @@
 
 	let { data } = $props();
 
-	function getEventIcon(type: MerchantEvent['type']) {
-		switch (type) {
-			case 'DISCOUNT':
+	function getEventIcon(rewardType: MerchantEvent['rewardType']) {
+		switch (rewardType) {
+			case 'EXTRA_SPIN':
+				return Gift;
+			case 'VOUCHER':
 				return Percent;
-			case 'FREE_PLAY':
-				return Gift;
-			case 'BONUS_PRIZE':
-				return Trophy;
 			default:
 				return Gift;
-		}
-	}
-
-	function getEventColor(type: MerchantEvent['type']): string {
-		switch (type) {
-			case 'DISCOUNT':
-				return 'bg-green-50 border-green-200 text-green-800';
-			case 'FREE_PLAY':
-				return 'bg-purple-50 border-purple-200 text-purple-800';
-			case 'BONUS_PRIZE':
-				return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-			default:
-				return 'bg-gray-50 border-gray-200 text-gray-800';
 		}
 	}
 
@@ -44,12 +29,12 @@
 		return event.startDate <= now && event.endDate >= now;
 	}
 
-	let EventIcon = $derived(getEventIcon(data.event.type));
+	let EventIcon = $derived(getEventIcon(data.event.rewardType));
 	let active = $derived(isEventActive(data.event));
 </script>
 
 <div class="min-h-screen bg-gray-100 pb-20 font-display">
-	<NavigationHeader title={data.event.name} showBack={true} />
+	<NavigationHeader title={data.event.title} showBack={true} />
 
 	<div class="space-y-4 p-4" data-testid="event-detail">
 		<!-- Event Header Card -->
@@ -64,7 +49,7 @@
 					</div>
 					<div class="min-w-0 flex-1">
 						<h1 class="mb-2 text-xl font-bold text-navy" data-testid="event-title">
-							{data.event.name}
+							{data.event.title}
 						</h1>
 						<div class="flex items-center gap-2 text-sm">
 							{#if active}
@@ -82,7 +67,7 @@
 									Ended
 								</span>
 							{/if}
-							{#if data.event.joinMode === 'AUTO'}
+							{#if data.event.joinMode === 'AUTO_JOIN'}
 								<span
 									class="inline-flex rounded-full bg-navy/10 px-2 py-0.5 text-xs font-medium text-navy"
 								>
@@ -170,10 +155,10 @@
 		{/if}
 
 		<!-- Action Button (for manual join events) -->
-		{#if data.event.joinMode === 'MANUAL' && active}
+		{#if data.event.joinMode === 'MANUAL_JOIN' && active}
 			<div class="rounded-2xl bg-white p-4 shadow-sm">
 				<button
-					class="w-full rounded-full bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light active:bg-navy-dark"
+					class="active:bg-navy-dark w-full rounded-full bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light"
 				>
 					Join Event
 				</button>

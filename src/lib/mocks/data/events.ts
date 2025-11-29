@@ -1,75 +1,95 @@
 // Mock event/promotion data
-import type { MerchantEvent, EventType, EventJoinMode } from '$lib/types';
+import type { MerchantEvent, EventRewardType, EventJoinMode, EventStatus } from '$lib/types';
 
 export const mockEvents: Record<string, MerchantEvent> = {
 	event_001: {
 		id: 'event_001',
-		name: 'Grand Opening Special',
+		title: 'Grand Opening Special',
 		description: 'Play 3 times, get 1 free! Limited time offer for new machine launch.',
-		type: 'FREE_PLAY' as EventType,
-		joinMode: 'AUTO' as EventJoinMode,
+		rewardType: 'EXTRA_SPIN' as EventRewardType,
+		joinMode: 'AUTO_JOIN' as EventJoinMode,
+		status: 'ACTIVE' as EventStatus,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2024-12-31'),
 		machineIds: ['machine_001'], // Anime Paradise only
+		minimumDrawCount: 3,
+		minimumPurchaseSpin: 3,
+		rewardValue: '1', // 1 extra spin
 		progress: 67, // 2 out of 3 plays completed
 		requirements: ['Play Anime Paradise 3 times'],
 		rewards: ['1 free play token']
 	},
 	event_002: {
 		id: 'event_002',
-		name: 'Weekend Discount',
-		description: '20% off all plays during weekends!',
-		type: 'DISCOUNT' as EventType,
-		joinMode: 'AUTO' as EventJoinMode,
+		title: 'Weekend Bonus',
+		description: 'Get extra spins during weekends!',
+		rewardType: 'EXTRA_SPIN' as EventRewardType,
+		joinMode: 'AUTO_JOIN' as EventJoinMode,
+		status: 'ACTIVE' as EventStatus,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2024-11-30'),
 		machineIds: undefined, // Global event - all machines
+		minimumDrawCount: 5,
+		minimumPurchaseSpin: 5,
+		rewardValue: '2', // 2 extra spins
 		progress: undefined,
 		requirements: ['Available Sat-Sun only'],
-		rewards: ['20% discount on all machines']
+		rewards: ['2 extra spins on all machines']
 	},
 	event_003: {
 		id: 'event_003',
-		name: 'Legendary Hunt',
-		description: 'Collect all 3 legendary prizes to unlock exclusive bonus!',
-		type: 'BONUS_PRIZE' as EventType,
-		joinMode: 'MANUAL' as EventJoinMode,
+		title: 'Legendary Hunt',
+		description: 'Collect prizes and earn voucher rewards!',
+		rewardType: 'VOUCHER' as EventRewardType,
+		joinMode: 'MANUAL_JOIN' as EventJoinMode,
+		status: 'ACTIVE' as EventStatus,
 		startDate: new Date('2024-11-15'),
 		endDate: new Date('2025-01-15'),
 		machineIds: ['machine_001', 'machine_006'], // Anime Paradise and Mystery Box
+		minimumDrawCount: 10,
+		minimumPurchaseSpin: 10,
+		rewardValue: '100.00', // RM 100 voucher
 		progress: 33, // 1 out of 3 collected
 		requirements: [
 			'Collect: Limited Edition Plushie',
 			'Collect: Mystery Figure',
 			'Collect: Golden Ticket'
 		],
-		rewards: ['Exclusive Super Rare Prize', 'RM 100 voucher']
+		rewards: ['Exclusive RM 100 voucher']
 	},
 	event_004: {
 		id: 'event_004',
-		name: 'First Timer Bonus',
-		description: 'New to Gachapon? Get 50% off your first play!',
-		type: 'DISCOUNT' as EventType,
-		joinMode: 'AUTO' as EventJoinMode,
+		title: 'First Timer Bonus',
+		description: 'New to Gachapon? Get bonus spins on your first purchase!',
+		rewardType: 'EXTRA_SPIN' as EventRewardType,
+		joinMode: 'AUTO_JOIN' as EventJoinMode,
+		status: 'ACTIVE' as EventStatus,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2025-12-31'),
 		machineIds: undefined, // Global event - all machines
+		minimumDrawCount: 1,
+		minimumPurchaseSpin: 1,
+		rewardValue: '1', // 1 extra spin
 		progress: 100, // Already used
 		requirements: ['First play only'],
-		rewards: ['50% off first play']
+		rewards: ['1 bonus spin on first purchase']
 	},
 	event_005: {
 		id: 'event_005',
-		name: 'Foodie Special',
-		description: 'Get 30% off on dining vouchers!',
-		type: 'DISCOUNT' as EventType,
-		joinMode: 'AUTO' as EventJoinMode,
+		title: 'Foodie Rewards',
+		description: 'Play and earn food vouchers!',
+		rewardType: 'VOUCHER' as EventRewardType,
+		joinMode: 'AUTO_JOIN' as EventJoinMode,
+		status: 'ACTIVE' as EventStatus,
 		startDate: new Date('2024-11-01'),
 		endDate: new Date('2024-12-31'),
 		machineIds: ['machine_002'], // Foodie Rewards only
+		minimumDrawCount: 5,
+		minimumPurchaseSpin: 5,
+		rewardValue: '20.00', // RM 20 voucher
 		progress: undefined,
 		requirements: ['Valid for Foodie Rewards machine'],
-		rewards: ['30% off dining vouchers']
+		rewards: ['RM 20 dining voucher']
 	}
 };
 

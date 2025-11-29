@@ -9,7 +9,7 @@ export const mockInventory: Record<string, InventoryItem> = {
 		machineId: mockMachines.machine_001.id,
 		machineName: mockMachines.machine_001.name,
 		machineImageUrl: mockMachines.machine_001.imageUrl,
-		pricePerPlay: mockMachines.machine_001.pricePerPlay,
+		pricePerDraw: mockMachines.machine_001.drawCost,
 		wonAt: new Date('2024-11-15T10:30:00'),
 		status: 'UNCLAIMED' as InventoryItemStatus,
 		collectionQRCode: 'qr_collection_001'
@@ -20,7 +20,7 @@ export const mockInventory: Record<string, InventoryItem> = {
 		machineId: mockMachines.machine_002.id,
 		machineName: mockMachines.machine_002.name,
 		machineImageUrl: mockMachines.machine_002.imageUrl,
-		pricePerPlay: mockMachines.machine_002.pricePerPlay,
+		pricePerDraw: mockMachines.machine_002.drawCost,
 		wonAt: new Date('2024-11-18T14:20:00'),
 		status: 'CLAIMED' as InventoryItemStatus,
 		claimedAt: new Date('2024-11-18T14:25:00')
@@ -31,7 +31,7 @@ export const mockInventory: Record<string, InventoryItem> = {
 		machineId: mockMachines.machine_003.id,
 		machineName: mockMachines.machine_003.name,
 		machineImageUrl: mockMachines.machine_003.imageUrl,
-		pricePerPlay: mockMachines.machine_003.pricePerPlay,
+		pricePerDraw: mockMachines.machine_003.drawCost,
 		wonAt: new Date('2024-11-10T09:15:00'),
 		status: 'COLLECTED' as InventoryItemStatus,
 		claimedAt: new Date('2024-11-10T09:20:00')
@@ -42,7 +42,7 @@ export const mockInventory: Record<string, InventoryItem> = {
 		machineId: mockMachines.machine_001.id,
 		machineName: mockMachines.machine_001.name,
 		machineImageUrl: mockMachines.machine_001.imageUrl,
-		pricePerPlay: mockMachines.machine_001.pricePerPlay,
+		pricePerDraw: mockMachines.machine_001.drawCost,
 		wonAt: new Date('2024-11-19T16:45:00'),
 		status: 'UNCLAIMED' as InventoryItemStatus,
 		collectionQRCode: 'qr_collection_004'
@@ -53,7 +53,7 @@ export const mockInventory: Record<string, InventoryItem> = {
 		machineId: mockMachines.machine_002.id,
 		machineName: mockMachines.machine_002.name,
 		machineImageUrl: mockMachines.machine_002.imageUrl,
-		pricePerPlay: mockMachines.machine_002.pricePerPlay,
+		pricePerDraw: mockMachines.machine_002.drawCost,
 		wonAt: new Date('2024-11-17T11:30:00'),
 		status: 'UNCLAIMED' as InventoryItemStatus,
 		collectionQRCode: 'qr_collection_005'

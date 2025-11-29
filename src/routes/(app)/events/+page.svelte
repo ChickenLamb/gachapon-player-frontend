@@ -1,18 +1,16 @@
 <script lang="ts">
-	import { Calendar, Gift, Percent, Trophy } from 'lucide-svelte';
+	import { Calendar, Gift, Percent } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import type { MerchantEvent } from '$lib/types';
 
 	let { data } = $props();
 
-	function getEventIcon(type: MerchantEvent['type']) {
-		switch (type) {
-			case 'DISCOUNT':
-				return Percent;
-			case 'FREE_PLAY':
+	function getEventIcon(rewardType: MerchantEvent['rewardType']) {
+		switch (rewardType) {
+			case 'EXTRA_SPIN':
 				return Gift;
-			case 'BONUS_PRIZE':
-				return Trophy;
+			case 'VOUCHER':
+				return Percent;
 			default:
 				return Gift;
 		}
@@ -44,7 +42,7 @@
 			</h3>
 			<div class="space-y-4">
 				{#each data.events.filter(isEventActive) as event (event.id)}
-					{@const Icon = getEventIcon(event.type)}
+					{@const Icon = getEventIcon(event.rewardType)}
 					<a
 						href="/events/{event.id}"
 						data-testid="event-card-{event.id}"
@@ -61,12 +59,12 @@
 								</div>
 								<div class="min-w-0 flex-1">
 									<h3 class="mb-1 font-bold text-navy" data-testid="event-name">
-										{event.name}
+										{event.title}
 									</h3>
 									<p class="line-clamp-2 text-sm text-gray-500" data-testid="event-description">
 										{event.description}
 									</p>
-									<span class="hidden" data-testid="event-type">{event.type}</span>
+									<span class="hidden" data-testid="event-type">{event.rewardType}</span>
 								</div>
 							</div>
 
@@ -98,7 +96,7 @@
 
 							<!-- Join Mode Badge -->
 							<div class="mt-3">
-								{#if event.joinMode === 'AUTO'}
+								{#if event.joinMode === 'AUTO_JOIN'}
 									<span
 										class="inline-flex rounded-full bg-accent-green/10 px-2 py-0.5 text-xs font-medium text-accent-green"
 									>
@@ -127,7 +125,7 @@
 				</h3>
 				<div class="space-y-3">
 					{#each data.events.filter((e) => !isEventActive(e)) as event (event.id)}
-						{@const Icon = getEventIcon(event.type)}
+						{@const Icon = getEventIcon(event.rewardType)}
 						<div class="rounded-2xl bg-white p-4 opacity-60 shadow-sm">
 							<div class="flex items-start gap-3">
 								<div
@@ -137,7 +135,7 @@
 								</div>
 								<div class="min-w-0 flex-1">
 									<h3 class="mb-1 font-bold text-gray-500">
-										{event.name}
+										{event.title}
 									</h3>
 									<p class="text-sm text-gray-400">
 										Ended {formatDate(event.endDate)}

@@ -197,7 +197,7 @@
 							<CreditCard class="h-5 w-5" />
 							<div>
 								<p class="text-sm">Price per spin</p>
-								<p class="text-xl font-bold">{formatPrice(connectedMachine.pricePerPlay)}</p>
+								<p class="text-xl font-bold">{formatPrice(connectedMachine.drawCost)}</p>
 							</div>
 						</div>
 					</div>

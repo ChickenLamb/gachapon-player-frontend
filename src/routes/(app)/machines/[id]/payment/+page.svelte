@@ -1,14 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { CreditCard, LoaderCircle, Minus, Plus } from 'lucide-svelte';
+	import { CreditCard, LoaderCircle, Minus, Plus, Gift } from 'lucide-svelte';
 	import NavigationHeader from '$lib/components/base/NavigationHeader.svelte';
 	import LoadingSpinner from '$lib/components/base/LoadingSpinner.svelte';
-	import { createPaymentPreview, createPayment, formatPrice } from '$lib/mocks/services/payment';
-	import type { PaymentPreview } from '$lib/types';
+	import {
+		paymentPreview as fetchPaymentPreview,
+		createPaymentIntent,
+		confirmPayment,
+		formatPrice
+	} from '$lib/mocks/services/payment';
+	import type { PaymentPreviewResponse, PaymentCreateResponse } from '$lib/types';
 
 	let { data } = $props();
 
-	let paymentPreview = $state<PaymentPreview | null>(null);
+	let preview = $state<PaymentPreviewResponse | null>(null);
+	let paymentIntent = $state<PaymentCreateResponse | null>(null);
 	let isLoadingPreview = $state(true);
 	let isProcessing = $state(false);
 	let error = $state<string | null>(null);
@@ -30,8 +36,11 @@
 	async function loadPaymentPreview(qty: number) {
 		try {
 			isLoadingPreview = true;
-			// TODO: Check for applicable events
-			paymentPreview = await createPaymentPreview(data.machine.id, data.machine.pricePerPlay, qty);
+			// Use new API-aligned payment preview (returns applicable events)
+			preview = await fetchPaymentPreview({
+				machineId: data.machine.id,
+				drawCount: qty
+			});
 		} catch {
 			error = 'Failed to load payment details';
 		} finally {
@@ -40,16 +49,23 @@
 	}
 
 	async function handlePayment() {
-		if (!paymentPreview || isProcessing || isOutOfStock) return;
+		if (!preview || isProcessing || isOutOfStock) return;
 
 		try {
 			isProcessing = true;
 			error = null;
 
-			// 1. Create payment (machine receives via WS, unlocks dispenser)
-			await createPayment(data.user.id, data.machine.id, paymentPreview.total);
+			// 1. Create payment intent (Airwallex mock)
+			paymentIntent = await createPaymentIntent({
+				machineId: data.machine.id,
+				drawCount: quantity
+			});
 
-			// 2. Redirect to dashboard with paid flag (shows spin reminder modal)
+			// 2. In real implementation, Airwallex SDK would handle payment here
+			// For mock, we simulate immediate confirmation
+			await confirmPayment(paymentIntent.paymentId);
+
+			// 3. Redirect to dashboard with paid flag (shows spin reminder modal)
 			goto('/dashboard?paid=true');
 		} catch {
 			error = 'Payment failed. Please try again.';
@@ -142,60 +158,75 @@
 			<div class="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-8">
 				<LoadingSpinner size="md" />
 			</div>
-		{:else if paymentPreview}
+		{:else if preview}
 			<div class="space-y-3 rounded-xl border border-gray-200 bg-white p-4">
 				<h3 class="mb-3 font-semibold text-gray-900">Payment Summary</h3>
 
 				<!-- Subtotal with quantity -->
 				<div class="flex justify-between text-sm">
 					<span class="text-gray-600">
-						{quantity}x Play @ {formatPrice(data.machine.pricePerPlay)}
+						{quantity}x Draw @ {formatPrice(preview.pricePerDraw)}
 					</span>
 					<span class="text-gray-900" data-testid="payment-subtotal"
-						>{formatPrice(paymentPreview.subtotal)}</span
+						>{formatPrice(preview.subtotal)}</span
 					>
 				</div>
-
-				<!-- Tax -->
-				<div class="flex justify-between text-sm">
-					<span class="text-gray-600">Tax (6%)</span>
-					<span class="text-gray-900" data-testid="payment-tax"
-						>{formatPrice(paymentPreview.tax)}</span
-					>
-				</div>
-
-				<!-- Discount -->
-				{#if paymentPreview.discount > 0}
-					<div class="flex justify-between text-sm">
-						<span class="text-green-600">Discount</span>
-						<span class="text-green-600">-{formatPrice(paymentPreview.discount)}</span>
-					</div>
-				{/if}
 
 				<div class="border-t border-gray-200 pt-3">
 					<div class="flex justify-between">
 						<span class="font-semibold text-gray-900">Total</span>
 						<span class="text-2xl font-bold text-navy" data-testid="payment-total">
-							{formatPrice(paymentPreview.total)}
+							{formatPrice(preview.totalAmount)}
 						</span>
 					</div>
 				</div>
 			</div>
+
+			<!-- Applicable Events / Rewards -->
+			{#if preview.applicableEvents && preview.applicableEvents.length > 0}
+				<div class="rounded-xl border border-green-200 bg-green-50 p-4">
+					<div class="mb-3 flex items-center gap-2">
+						<Gift class="h-5 w-5 text-green-600" />
+						<h3 class="font-semibold text-green-800">Eligible Rewards</h3>
+					</div>
+					<div class="space-y-2">
+						{#each preview.applicableEvents as event (event.eventId)}
+							<div class="rounded-lg bg-white p-3 shadow-sm">
+								<p class="font-medium text-gray-900">{event.eventTitle}</p>
+								<p class="text-sm text-gray-600">{event.rewardDescription}</p>
+								<p class="mt-1 text-xs text-green-600">
+									{#if event.rewardType === 'EXTRA_SPIN'}
+										+{event.currentProgress.targetSpins} bonus draw{event.currentProgress
+											.targetSpins > 1
+											? 's'
+											: ''}
+									{:else if event.rewardType === 'VOUCHER'}
+										Voucher reward
+									{/if}
+									{#if event.willComplete}
+										<span class="ml-1 font-medium text-green-700">✓ Will complete</span>
+									{/if}
+								</p>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		{/if}
 
-		<!-- Payment Method (Mock) - only show if in stock -->
+		<!-- Payment Method (Airwallex Mock) - only show if in stock -->
 		{#if !isOutOfStock}
 			<div class="rounded-xl border border-gray-200 bg-white p-4">
 				<h3 class="mb-3 font-semibold text-gray-900">Payment Method</h3>
 				<div class="flex items-center gap-3 rounded-lg border-2 border-navy bg-gray-50 p-3">
 					<CreditCard class="h-6 w-6 text-navy" />
 					<div class="flex-1">
-						<p class="font-medium text-gray-900">Mock Payment</p>
+						<p class="font-medium text-gray-900">Airwallex (Mock)</p>
 						<p class="text-xs text-gray-500">Development mode - instant approval</p>
 					</div>
 				</div>
 				<p class="mt-3 text-xs text-gray-500">
-					In production, this will use real payment gateway (Stripe, iPay88, etc.)
+					In production, Airwallex SDK will handle secure payment processing.
 				</p>
 			</div>
 		{/if}
@@ -216,7 +247,7 @@
 			type="button"
 			data-testid="confirm-payment-button"
 			onclick={handlePayment}
-			disabled={isProcessing || isLoadingPreview || !paymentPreview || isOutOfStock}
+			disabled={isProcessing || isLoadingPreview || !preview || isOutOfStock}
 			class="flex w-full items-center justify-center gap-2 rounded-xl bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy/90 active:bg-navy disabled:cursor-not-allowed disabled:bg-gray-300"
 		>
 			{#if isOutOfStock}
@@ -224,14 +255,14 @@
 			{:else if isProcessing}
 				<LoaderCircle class="h-5 w-5 animate-spin" />
 				<span data-testid="payment-processing">Processing...</span>
-			{:else if paymentPreview}
-				<span>Pay {formatPrice(paymentPreview.total)}</span>
+			{:else if preview}
+				<span>Pay {formatPrice(preview.totalAmount)}</span>
 			{:else}
 				<span>Loading...</span>
 			{/if}
 		</button>
 		{#if !isOutOfStock}
-			<p class="mt-2 text-center text-xs text-gray-500">Secure mock payment for development</p>
+			<p class="mt-2 text-center text-xs text-gray-500">Secure payment via Airwallex (mock)</p>
 		{/if}
 	</div>
 </div>

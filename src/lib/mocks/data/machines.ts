@@ -102,69 +102,87 @@ export const mockMachines: Record<string, Machine> = {
 	machine_001: {
 		id: 'machine_001',
 		name: 'Anime Paradise',
+		serialNumber: 'GCH-2024-001',
 		location: 'Pavilion KL - Ground Floor',
 		status: 'AVAILABLE' as MachineStatus,
-		pricePerPlay: 500, // RM 5.00
+		drawCost: '5.00', // RM 5.00
 		featuredPrizes: [mockPrizes.prize_001, mockPrizes.prize_003, mockPrizes.prize_006],
 		imageUrl: machineImage,
 		description:
 			'Premium anime collectibles and limited edition merchandise. High chance of rare items!',
-		inventoryCount: 15
+		inventoryCount: 15,
+		ownerId: 'merchant_001',
+		ownerType: 'MERCHANT'
 	},
 	machine_002: {
 		id: 'machine_002',
 		name: 'Foodie Rewards',
+		serialNumber: 'GCH-2024-002',
 		location: 'KLCC - Suria Mall Level 2',
 		status: 'AVAILABLE' as MachineStatus,
-		pricePerPlay: 300, // RM 3.00
+		drawCost: '3.00', // RM 3.00
 		featuredPrizes: [mockPrizes.prize_002, mockPrizes.prize_005],
 		imageUrl: machineImage,
 		description: 'Win dining vouchers and food discounts from popular restaurants!',
-		inventoryCount: 0 // Out of stock for testing
+		inventoryCount: 0, // Out of stock for testing
+		ownerId: 'merchant_002',
+		ownerType: 'MERCHANT'
 	},
 	machine_003: {
 		id: 'machine_003',
 		name: 'Gaming Zone',
+		serialNumber: 'GCH-2024-003',
 		location: 'Mid Valley Megamall - LG Floor',
 		status: 'AVAILABLE' as MachineStatus,
-		pricePerPlay: 400, // RM 4.00
+		drawCost: '4.00', // RM 4.00
 		featuredPrizes: [mockPrizes.prize_003, mockPrizes.prize_008, mockPrizes.prize_004],
 		imageUrl: machineImage,
 		description: 'Game credits, free plays, and gaming merchandise!',
-		inventoryCount: 3 // Low stock for testing
+		inventoryCount: 3, // Low stock for testing
+		ownerId: 'merchant_001',
+		ownerType: 'MERCHANT'
 	},
 	machine_004: {
 		id: 'machine_004',
 		name: 'Cute Collection',
+		serialNumber: 'GCH-2024-004',
 		location: '1 Utama - New Wing Level 3',
-		status: 'IN_USE' as MachineStatus,
-		pricePerPlay: 350, // RM 3.50
+		status: 'RENTED' as MachineStatus,
+		drawCost: '3.50', // RM 3.50
 		featuredPrizes: [mockPrizes.prize_004, mockPrizes.prize_007],
 		imageUrl: machineImage,
 		description: 'Adorable keychains, stickers, and kawaii accessories!',
-		inventoryCount: 8
+		inventoryCount: 8,
+		ownerId: 'platform_001',
+		ownerType: 'PLATFORM'
 	},
 	machine_005: {
 		id: 'machine_005',
 		name: 'Premium Prizes',
+		serialNumber: 'GCH-2024-005',
 		location: 'Sunway Pyramid - Blue Concourse',
 		status: 'MAINTENANCE' as MachineStatus,
-		pricePerPlay: 1000, // RM 10.00
+		drawCost: '10.00', // RM 10.00
 		featuredPrizes: [mockPrizes.prize_001, mockPrizes.prize_006],
 		imageUrl: machineImage,
 		description: 'Exclusive high-value prizes and limited editions. Currently under maintenance.',
-		inventoryCount: 5
+		inventoryCount: 5,
+		ownerId: 'merchant_003',
+		ownerType: 'MERCHANT'
 	},
 	machine_006: {
 		id: 'machine_006',
 		name: 'Mystery Box',
+		serialNumber: 'GCH-2024-006',
 		location: 'The Gardens Mall - Ground Floor',
 		status: 'AVAILABLE' as MachineStatus,
-		pricePerPlay: 600, // RM 6.00
+		drawCost: '6.00', // RM 6.00
 		featuredPrizes: [mockPrizes.prize_006, mockPrizes.prize_001, mockPrizes.prize_003],
 		imageUrl: machineImage,
 		description: 'Surprise prizes every time! Blind boxes and mystery items.',
-		inventoryCount: 12
+		inventoryCount: 12,
+		ownerId: 'platform_001',
+		ownerType: 'PLATFORM'
 	}
 };
 

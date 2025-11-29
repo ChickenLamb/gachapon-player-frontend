@@ -146,6 +146,16 @@ export type KeysOfType<T, V> = {
 export * from './gachapon';
 
 // ============================================================================
+// API & WEBSOCKET TYPES
+// ============================================================================
+
+/**
+ * Re-export all API-specific types including WebSocket protocol
+ * See api.ts for detailed type definitions
+ */
+export * from './api';
+
+// ============================================================================
 // TYPE GUARDS
 // ============================================================================
 

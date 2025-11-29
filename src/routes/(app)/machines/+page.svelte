@@ -152,7 +152,7 @@
 								</div>
 
 								<p class="text-lg font-bold text-navy" data-testid="machine-price">
-									{formatPrice(machineItem.pricePerPlay)}
+									{formatPrice(machineItem.drawCost)}
 								</p>
 
 								<div class="flex items-center text-xs text-accent-green">

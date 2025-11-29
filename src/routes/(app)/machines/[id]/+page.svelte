@@ -34,7 +34,7 @@
 			</h1>
 			<p class="mb-2 text-sm text-gray-500">Gachapon Limited Edition</p>
 			<p class="mb-3 text-2xl font-bold text-navy" data-testid="machine-price">
-				{formatPrice(data.machine.pricePerPlay)}
+				{formatPrice(data.machine.drawCost)}
 			</p>
 			<div class="flex items-center text-sm text-accent-green">
 				<MapPin class="mr-1 h-4 w-4 flex-shrink-0" />
@@ -68,7 +68,7 @@
 				type="button"
 				data-testid="scan-qr-button"
 				onclick={goToDashboard}
-				class="flex w-full items-center justify-center gap-2 rounded-full bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light active:bg-navy-dark"
+				class="active:bg-navy-dark flex w-full items-center justify-center gap-2 rounded-full bg-navy py-4 font-semibold text-white shadow-lg transition-colors hover:bg-navy-light"
 			>
 				<span>Connect to Gachapon</span>
 			</button>
@@ -80,7 +80,7 @@
 			>
 				Under Maintenance
 			</button>
-		{:else if data.machine.status === 'IN_USE'}
+		{:else if data.machine.status === 'RENTED'}
 			<button
 				type="button"
 				disabled
